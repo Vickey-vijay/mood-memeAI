@@ -1,14 +1,13 @@
 # MoodBoard — Emotion-Aware Sticker Keyboard (Android)
 
-A lightweight Android keyboard that lets you type normally **and**, with one tap,
-scan your face with the front camera, detect your mood, and instantly show
-matching stickers/GIFs you can send into any chat — without leaving the
+A lightweight Android keyboard that types normally and, with one tap, reads your
+facial expression from the front camera, works out your mood on the device, and
+shows matching stickers you can send into any chat — without leaving the
 conversation.
 
-Built to the design in `../docs/` (InputMethodService + CameraX in-place capture
-+ NVIDIA NIM emotion API + GIPHY/Tenor stickers + Android Commit Content API).
-
----
+Emotion recognition runs entirely on the phone using MediaPipe Face Landmarker
+(facial blendshapes). Stickers come from the GIPHY Stickers API, plus any you
+import yourself.
 
 ## What's inside
 
@@ -16,93 +15,66 @@ Built to the design in `../docs/` (InputMethodService + CameraX in-place capture
 |---|---|
 | Keyboard service (IME) | `app/.../ime/MoodBoardService.kt` |
 | QWERTY view (typing, shift, symbols) | `app/.../ime/QwertyKeyboardView.kt` |
-| In-IME front camera (CameraX) | `app/.../camera/KeyboardCameraManager.kt` |
-| Emotion detection (NVIDIA NIM) | `app/.../emotion/NvidiaEmotionClassifier.kt` |
+| In-keyboard front camera (CameraX) | `app/.../camera/KeyboardCameraManager.kt` |
+| Camera permission helper | `app/.../camera/PermissionActivity.kt` |
+| On-device emotion (MediaPipe) | `app/.../emotion/EmotionAnalyzer.kt` |
+| Emotions + sticker queries | `app/.../emotion/Emotion.kt` |
 | Sticker search (GIPHY / Tenor + your own) | `app/.../stickers/StickerRepository.kt` |
 | Send sticker into chat (Commit Content) | `app/.../util/RichContentSender.kt` |
-| Setup / enable keyboard / API keys | `app/.../ui/SetupActivity.kt` |
-| Import your own stickers | `app/.../ui/StickerManagerActivity.kt` |
+| Enable / switch keyboard | `app/.../ui/SetupActivity.kt` |
+| Add / remove your own stickers | `app/.../ui/StickerManagerActivity.kt` |
+| On-device model | `app/src/main/assets/face_landmarker.task` |
 | Cloud build → APK | `.github/workflows/build-apk.yml` |
 
-The app bundles **no** machine-learning model, so the APK stays small. Emotion
-detection happens in the cloud (NVIDIA's free vision API).
+The MediaPipe model is bundled in the app (~3.6 MB) so emotion detection works
+offline and privately — camera frames are analysed in memory and never uploaded.
 
----
+## How it works
 
-## How to get the APK (no Android Studio needed)
+1. Type normally with the QWERTY keys in any app.
+2. Tap the **Mood** button — the front camera opens inside the keyboard and shows
+   a live emotion read-out (e.g. "Happy 78%").
+3. Hold a clear expression; once it is stable the keyboard locks the mood and loads
+   matching stickers. (Or tap **Use mood** to lock the current reading immediately.)
+4. Tap a sticker and it is sent straight into the chat.
 
-The project builds itself on GitHub's servers and hands you a ready `.apk`.
+Detected emotions: Happy, Laughing, Excited, Surprised, Shocked, Sad, Angry,
+Annoyed, Disgust, Skeptical, Sleepy, Kiss, Neutral.
 
-### One-time: put the project on GitHub
-1. Create a free account at https://github.com (if you don't have one).
-2. Click **New repository** → name it e.g. `moodboard-keyboard` → **Create**.
-3. On the new repo page click **uploading an existing file**.
-4. Drag the **entire `MoodBoardKeyboard` folder contents** into the upload box
-   (keep the folder structure — including the `.github` folder).
-   - Tip: if drag-and-drop drops the hidden `.github` folder, use
-     **GitHub Desktop** or `git push` instead so the workflow file is included.
-5. Click **Commit changes**.
+### Your own stickers
+Settings (the wrench on the keyboard) → **Manage my stickers** → **Add sticker
+from gallery**. Long-press a sticker to delete it. Imported stickers appear first
+in every mood and work with no internet.
 
-### The build runs automatically
-6. Open the **Actions** tab. A run called **Build MoodBoard APK** starts.
-7. Wait ~3–5 minutes for the green check.
+## Getting the APK (no Android Studio needed)
 
-### Download your APK
-8. Go to the **Releases** section (right sidebar) → open the latest
-   `MoodBoard build N` → download **`MoodBoard-debug.apk`**.
-   - (Or: Actions → the finished run → **Artifacts** → `MoodBoard-APK`.)
+The project builds itself on GitHub's servers.
 
-### Install on your phone
-9. Copy `MoodBoard-debug.apk` to your Android phone.
-10. Tap it → allow **Install from unknown sources** when prompted → **Install**.
+1. Push this project to a GitHub repository (keep the `.github` folder).
+2. Open the **Actions** tab — a run called **Build MoodBoard APK** starts and
+   finishes in ~3–5 minutes.
+3. Download **`MoodBoard-debug.apk`** from **Releases** (right sidebar), or from
+   the finished Actions run under **Artifacts**.
+4. Copy it to your phone and install (allow "install from unknown sources").
 
-> Prefer Android Studio? Just open this folder in Android Studio and press
-> **Run** / **Build → Build APK(s)**. The `gradle` setup is standard.
+> If the release step reports a permission error, set
+> **Settings → Actions → General → Workflow permissions → Read and write** and
+> re-run. The APK is still available under Artifacts either way.
 
----
+Prefer Android Studio? Open the folder and use **Build → Build APK(s)**.
 
 ## First-time setup on the phone
 
 1. Open the **MoodBoard** app.
-2. Tap **Enable keyboard** → turn on *MoodBoard Keyboard* in system settings.
-3. Tap **Choose keyboard** → pick *MoodBoard Keyboard* as the active one.
-4. (Recommended) Paste your free API keys (see below) and tap **Save keys**.
+2. Tap **Enable keyboard** and turn on *MoodBoard Keyboard* in system settings.
+3. Tap **Choose keyboard** and select *MoodBoard Keyboard*.
 
-You can switch back to your old keyboard any time from the same picker.
-
-### Free API keys
-
-| Key | Where to get it (free) | Used for |
-|---|---|---|
-| NVIDIA NIM | https://build.nvidia.com → sign in → any vision model → **Get API Key** | Detecting your emotion |
-| GIPHY | https://developers.giphy.com → Create an App → API key | Stickers/GIFs |
-| Tenor (alt) | https://developers.google.com/tenor/guides/quickstart | Stickers/GIFs |
-
-- A public GIPHY demo key is built in, so stickers work immediately — but it is
-  rate-limited. Add your own GIPHY (or Tenor) key for reliable results.
-- Without an NVIDIA key, mood detection falls back to "Neutral" and still shows
-  fun stickers — so the keyboard is always usable.
-
----
-
-## How to use it
-
-1. In any chat, type normally with the QWERTY keys.
-2. Tap **🙂 Mood** → the front camera preview opens.
-3. Make your expression, tap **📸 Capture**.
-4. MoodBoard reads your mood (e.g. *Happy*) and shows matching stickers.
-5. Tap a sticker → it's sent straight into the chat.
-6. Tap the ↩ icon (top-left) to go back to typing.
-
-### Your own stickers
-Setup → **Manage my stickers** → **Add sticker from gallery**. Imported stickers
-always appear first in the grid and work even with no internet.
-
----
+No keys to enter — emotion runs on-device, and a built-in GIPHY demo key powers
+stickers out of the box. To use your own GIPHY or Tenor key, replace
+`DEFAULT_GIPHY_KEY` in `app/.../util/Prefs.kt`.
 
 ## Notes
-- `minSdk 24` (Android 7.0) → runs on virtually all phones in use.
-- Debug APK is unsigned for the Play Store but installs fine by sideloading.
-- See **`CAVEATS.md`** for the full list of known limitations and fixes.
-- The empty `themes.xml.tmp` / `mipmap-anydpi-v26` folder (if present) are
-  harmless build leftovers and can be deleted.
+- `minSdk 24` (Android 7.0) — runs on virtually all phones in use.
+- APK is ~35 MB (MediaPipe native libraries, limited to ARM CPUs).
+- Debug-signed for sideloading; release signing is needed for the Play Store.
+- See **`CAVEATS.md`** for known limitations and fixes.

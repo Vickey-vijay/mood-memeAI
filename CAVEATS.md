@@ -38,14 +38,15 @@ declares it accepts images** (the Commit Content API).
 
 ## 4. Emotion detection accuracy
 
-- Cloud vision models infer emotion from one still photo; expect rough accuracy,
-  not clinical precision. Good lighting + a clear, centered face help a lot.
-- If NVIDIA changes model names, set a new model id — it's overridable in code
-  (`Prefs.nvidiaModel`, default in `BuildDefaults.DEFAULT_NVIDIA_MODEL`).
-- NVIDIA's free tier is rate-limited; heavy use may return 429. The keyboard
-  falls back to "Neutral" stickers so it never gets stuck.
-- Image is downscaled to 512px JPEG before upload to stay within request limits
-  and keep it fast. No photo is saved to your gallery (privacy by design).
+- Emotion is inferred on-device from facial blendshapes (MediaPipe Face
+  Landmarker); expect rough accuracy, not clinical precision. Good lighting and a
+  clear, centered face help a lot.
+- The expression is scored across all emotions and the strongest is chosen, so it
+  won't get stuck on "Neutral"; the "Use mood" button forces a reading.
+- If a mood is hard to trigger, its scoring weights can be tuned in
+  `EmotionAnalyzer` (sensitivity via `NEUTRAL_FLOOR` / `STABLE_FRAMES`).
+- Everything runs frame-by-frame on the phone — no network latency, no per-request
+  limits, and no photo is saved to your gallery.
 
 ## 5. Sticker providers
 
@@ -69,8 +70,9 @@ declares it accepts images** (the Commit Content API).
 
 ## 8. Privacy
 
-- Photos are captured to memory, sent once to NVIDIA for classification, and not
-  stored. API keys live only in the app's private SharedPreferences on your phone.
+- Camera frames are analysed in memory on the device and are never saved to the
+  gallery or uploaded. Emotion recognition is fully on-device; only the emotion
+  keyword leaves the phone, to fetch stickers.
 - The web `.env` GIPHY key in `../moodboard-keyboard-prototype` is for the browser
   prototype only and is **not** bundled into the APK.
 
