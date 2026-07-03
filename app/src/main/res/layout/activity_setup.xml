@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/kb_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_title"
+            android:textColor="@color/kb_text"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/setup_intro"
+            android:textColor="#FFB9BEC9"
+            android:textSize="14sp" />
+
+        <TextView style="@style/SetupStep" android:text="@string/step1" />
+        <Button
+            android:id="@+id/btnEnable"
+            style="@style/SetupButton"
+            android:text="@string/btn_enable" />
+
+        <TextView style="@style/SetupStep" android:text="@string/step2" />
+        <Button
+            android:id="@+id/btnSwitch"
+            style="@style/SetupButton"
+            android:text="@string/btn_switch" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="@string/setup_ready"
+            android:textColor="#FF8FE39B"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="18dp"
+            android:background="#33FFFFFF" />
+
+        <Button
+            android:id="@+id/btnManageStickers"
+            style="@style/SetupButton"
+            android:layout_marginTop="18dp"
+            android:text="@string/btn_manage_stickers" />
+    </LinearLayout>
+</ScrollView>

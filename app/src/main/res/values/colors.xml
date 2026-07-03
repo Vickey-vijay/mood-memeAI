@@ -1,0 +1,11 @@
+<resources>
+    <color name="kb_background">#FF20232A</color>
+    <color name="kb_key">#FF3A3F4B</color>
+    <color name="kb_key_special">#FF2B2F38</color>
+    <color name="kb_key_pressed">#FF4F5666</color>
+    <color name="kb_text">#FFFFFFFF</color>
+    <color name="kb_accent">#FF7C5CFF</color>
+    <color name="kb_toolbar">#FF20232A</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>

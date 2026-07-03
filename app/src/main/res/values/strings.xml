@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">MoodBoard</string>
+    <string name="ime_label">MoodBoard Keyboard</string>
+    <string name="manage_stickers">My Stickers</string>
+
+    <string name="setup_title">MoodBoard Setup</string>
+    <string name="setup_intro">An emotion-aware sticker keyboard. Scan your face, get matching stickers, send in one tap.</string>
+    <string name="step1">1. Enable MoodBoard in system settings</string>
+    <string name="step2">2. Switch your active keyboard to MoodBoard</string>
+    <string name="step3">3. (Optional) Add your API keys for emotion + stickers</string>
+    <string name="btn_enable">Enable keyboard</string>
+    <string name="btn_switch">Choose keyboard</string>
+    <string name="btn_save_keys">Save keys</string>
+    <string name="btn_manage_stickers">Manage my stickers</string>
+    <string name="hint_nvidia">NVIDIA NIM API key (emotion)</string>
+    <string name="hint_giphy">GIPHY / Tenor API key (stickers)</string>
+    <string name="keys_saved">Saved.</string>
+    <string name="setup_ready">Keys are built in - no setup needed. Just enable MoodBoard and start typing.</string>
+
+    <string name="add_sticker">Add sticker from gallery</string>
+    <string name="no_custom_stickers">No custom stickers yet. Tap + to add.</string>
+
+    <!-- Keyboard UI -->
+    <string name="cd_mood">Scan mood</string>
+    <string name="cd_abc">Letters</string>
+    <string name="cd_backspace">Backspace</string>
+    <string name="cd_settings">Settings</string>
+    <string name="scanning">Scanning your mood…</string>
+    <string name="loading_stickers">Loading stickers…</string>
+    <string name="emotion_prefix">Mood:</string>
+    <string name="need_camera">Tap to allow camera for mood scan</string>
+    <string name="no_results">No stickers found. Try again.</string>
+    <string name="key_space">space</string>
+    <string name="key_enter">return</string>
+</resources>
