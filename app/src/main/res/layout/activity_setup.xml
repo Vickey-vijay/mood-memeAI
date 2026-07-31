@@ -58,5 +58,32 @@
             style="@style/SetupButton"
             android:layout_marginTop="18dp"
             android:text="@string/btn_manage_stickers" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="18dp"
+            android:background="#33FFFFFF" />
+
+        <TextView style="@style/SetupStep" android:text="@string/calibration_card_title" />
+
+        <TextView
+            android:id="@+id/calibrationStateText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/calibration_state_uncalibrated"
+            android:textColor="#FFB9BEC9"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnCalibrate"
+            style="@style/SetupButton"
+            android:text="@string/btn_calibrate" />
+
+        <Button
+            android:id="@+id/btnEmotionLab"
+            style="@style/SetupButton"
+            android:text="@string/btn_emotion_lab" />
     </LinearLayout>
 </ScrollView>

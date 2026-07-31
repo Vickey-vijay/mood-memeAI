@@ -6,10 +6,17 @@ package com.moodboard.keyboard.stickers
  * @param sendUrl    full URL (or local file path) downloaded & sent to the chat
  * @param mime       MIME type committed to the target app (image/gif, image/webp, image/png)
  * @param isLocal    true when [previewUrl]/[sendUrl] are local file paths
+ * @param id         stable id for user-imported stickers (empty for online results)
+ * @param mood       owning [com.moodboard.keyboard.emotion.Emotion.key] for user-imported
+ *                   stickers (empty for online results)
+ * @param favorite   true if the user has marked this (local) sticker as a favourite
  */
 data class StickerItem(
     val previewUrl: String,
     val sendUrl: String,
     val mime: String,
-    val isLocal: Boolean = false
+    val isLocal: Boolean = false,
+    val id: String = "",
+    val mood: String = "",
+    val favorite: Boolean = false
 )

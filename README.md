@@ -17,12 +17,15 @@ import yourself.
 | QWERTY view (typing, shift, symbols) | `app/.../ime/QwertyKeyboardView.kt` |
 | In-keyboard front camera (CameraX) | `app/.../camera/KeyboardCameraManager.kt` |
 | Camera permission helper | `app/.../camera/PermissionActivity.kt` |
-| On-device emotion (MediaPipe) | `app/.../emotion/EmotionAnalyzer.kt` |
+| On-device emotion (MediaPipe, FACS-EBS v2) | `app/.../emotion/EmotionAnalyzer.kt`, `ExpressionClassifier.kt` |
 | Emotions + sticker queries | `app/.../emotion/Emotion.kt` |
-| Sticker search (GIPHY / Tenor + your own) | `app/.../stickers/StickerRepository.kt` |
+| Mood-bucketed sticker storage | `app/.../stickers/StickerLibrary.kt` |
+| Sticker search (your own, then GIPHY / Tenor) | `app/.../stickers/StickerRepository.kt` |
 | Send sticker into chat (Commit Content) | `app/.../util/RichContentSender.kt` |
-| Enable / switch keyboard | `app/.../ui/SetupActivity.kt` |
-| Add / remove your own stickers | `app/.../ui/StickerManagerActivity.kt` |
+| Enable / switch keyboard, calibration, Emotion Lab | `app/.../ui/SetupActivity.kt` |
+| Manage stickers - level 1 (mood grid) | `app/.../ui/StickerManagerActivity.kt` |
+| Manage stickers - level 2 (one mood's grid) | `app/.../ui/MoodStickersActivity.kt` |
+| "Share into MoodBoard" target | `app/.../ui/ReceiveStickerActivity.kt` |
 | On-device model | `app/src/main/assets/face_landmarker.task` |
 | Cloud build → APK | `.github/workflows/build-apk.yml` |
 
@@ -38,13 +41,38 @@ offline and privately — camera frames are analysed in memory and never uploade
    matching stickers. (Or tap **Use mood** to lock the current reading immediately.)
 4. Tap a sticker and it is sent straight into the chat.
 
-Detected emotions: Happy, Laughing, Excited, Surprised, Shocked, Sad, Angry,
-Annoyed, Disgust, Skeptical, Sleepy, Kiss, Neutral.
+Detected emotions: Happy, Laughing, Excited, Surprised, Shocked, Fearful, Sad,
+Angry, Annoyed, Frustrated, Disgust, Contempt, Skeptical, Sleepy, Kiss, Wink,
+Puffed, Silly, Neutral. (Silly/tongue-out is only offered if the on-device model
+reliably sees `tongueOut` on this phone - see `docs/SPEC_V2.md` A.3.)
 
-### Your own stickers
-Settings (the wrench on the keyboard) → **Manage my stickers** → **Add sticker
-from gallery**. Long-press a sticker to delete it. Imported stickers appear first
-in every mood and work with no internet.
+### Your own stickers - mood-categorised library
+Settings (the wrench on the keyboard) → **Manage my stickers** opens a grid of
+mood cards (one per emotion, greyed out until you add something). Tap a card to
+see that mood's stickers, with:
+- **+ (FAB)** - add from the gallery, straight into this mood.
+- **Import folder** - pick any folder via Android's file picker; every image
+  inside (recursively) is imported into this mood.
+- **Long-press a sticker** - set as the mood's cover, move it to another mood,
+  favourite it (favourites sort first), or delete it.
+
+Three ways to get stickers in, including ones you already have in WhatsApp:
+1. **Share → MoodBoard** from WhatsApp (or any app) on an existing sticker - a
+   mood picker appears and it's saved.
+2. **Import a folder**, then **Import WhatsApp stickers** - opens Android's
+   folder picker pre-pointed at WhatsApp's *readable* received-stickers folder
+   (`Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Stickers`). WhatsApp's
+   own private sticker/pack storage under `/data/data/com.whatsapp` cannot be
+   read by any other app - this is an Android sandboxing rule, not a MoodBoard
+   limitation. See `docs/SPEC_V2.md` B.4 for the full explanation, which is also
+   shown inline in the import sheet.
+3. **Import from gallery** - for stickers already saved to your photos.
+
+Animated `.webp`/`.gif` stickers are copied byte-for-byte so they stay animated;
+large JPEG/PNG imports are downsized (long edge clamped to 512px). At mood-scan
+time your own stickers for the detected mood show first (favourites first), then
+stickers from the runner-up mood if you don't have many, then GIPHY/Tenor -
+so a populated library works fully offline.
 
 ## Getting the APK (no Android Studio needed)
 

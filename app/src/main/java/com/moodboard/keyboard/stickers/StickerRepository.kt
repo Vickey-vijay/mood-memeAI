@@ -1,7 +1,7 @@
 package com.moodboard.keyboard.stickers
 
 import android.content.Context
-import com.moodboard.keyboard.emotion.Emotion
+import com.moodboard.keyboard.emotion.EmotionResult
 import com.moodboard.keyboard.util.Prefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,8 +12,14 @@ import okhttp3.Request
 import java.util.concurrent.TimeUnit
 
 /**
- * Fetches stickers/GIFs for a detected [Emotion] from GIPHY or Tenor, and always
- * prepends the user's own imported stickers so the grid is never empty offline.
+ * Fetches stickers/GIFs for a detected mood, following the SPEC_V2 B.5 retrieval
+ * order:
+ *   1. User stickers for [EmotionResult.emotion] - favourites first.
+ *   2. User stickers for the runner-up mood ([EmotionResult.distribution]\[1\]),
+ *      tagged as related, only if step 1 returned fewer than 12.
+ *   3. Online GIPHY/Tenor for `emotion.query`, only if the network is up and
+ *      [Prefs.onlineStickers] is on.
+ * Offline with a populated library must still fill the grid.
  */
 class StickerRepository(private val context: Context, private val prefs: Prefs) {
 
@@ -22,22 +28,38 @@ class StickerRepository(private val context: Context, private val prefs: Prefs) 
         .readTimeout(20, TimeUnit.SECONDS)
         .build()
 
-    private val customStore = CustomStickerStore(context)
+    private val library = StickerLibrary(context)
 
-    suspend fun search(emotion: Emotion, limit: Int = 30): Result<List<StickerItem>> =
+    /** Preferred entry point (SPEC_V2 B.5): full detection result, not just the label,
+     *  so the runner-up mood in [EmotionResult.distribution] can be used as fallback. */
+    suspend fun search(result: EmotionResult, limit: Int = 30): Result<List<StickerItem>> =
         withContext(Dispatchers.IO) {
-            val local = customStore.list()
+            val emotion = result.emotion
+            val own = library.list(emotion)
+            val related = if (own.size < RELATED_THRESHOLD) {
+                val runnerUp = result.distribution.getOrNull(1)?.first
+                if (runnerUp != null && runnerUp != emotion) library.list(runnerUp) else emptyList()
+            } else emptyList()
+
+            val ownCombined = if (prefs.preferOwnStickers) own + related else related + own
+
             try {
+                if (!prefs.onlineStickers) return@withContext successOrFailure(ownCombined)
                 val online = when (prefs.provider.lowercase()) {
                     "tenor" -> tenor(emotion.query, limit)
                     else -> giphy(emotion.query, limit)
                 }
-                Result.success(local + online)
+                Result.success(
+                    if (prefs.preferOwnStickers) ownCombined + online else online + ownCombined
+                )
             } catch (t: Throwable) {
                 // Network failed but we can still show the user's own stickers.
-                if (local.isNotEmpty()) Result.success(local) else Result.failure(t)
+                successOrFailure(ownCombined, t)
             }
         }
+
+    private fun successOrFailure(local: List<StickerItem>, cause: Throwable? = null): Result<List<StickerItem>> =
+        if (local.isNotEmpty()) Result.success(local) else Result.failure(cause ?: RuntimeException("No stickers"))
 
     private fun giphy(query: String, limit: Int): List<StickerItem> {
         val url = "https://api.giphy.com/v1/stickers/search".toHttpUrl().newBuilder()
@@ -91,5 +113,9 @@ class StickerRepository(private val context: Context, private val prefs: Prefs) 
             }
             return body
         }
+    }
+
+    companion object {
+        private const val RELATED_THRESHOLD = 12
     }
 }

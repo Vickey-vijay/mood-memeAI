@@ -37,11 +37,47 @@
             </intent-filter>
         </activity>
 
-        <!-- Sticker manager: import custom stickers from gallery -->
+        <!-- Sticker manager: level-1 mood grid (SPEC_V2 B.3) -->
         <activity
             android:name=".ui.StickerManagerActivity"
             android:exported="false"
             android:label="@string/manage_stickers" />
+
+        <!-- Sticker manager: level-2 grid of one mood's stickers (SPEC_V2 B.3) -->
+        <activity
+            android:name=".ui.MoodStickersActivity"
+            android:exported="false" />
+
+        <!-- Share target: "Share -> MoodBoard" from WhatsApp or any app (SPEC_V2 B.4 route 1) -->
+        <activity
+            android:name=".ui.ReceiveStickerActivity"
+            android:exported="true"
+            android:label="@string/receive_sticker_title"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
+        <!-- Emotion Engine v2: neutral-face calibration (SPEC_V2 A.2 / A.8) -->
+        <activity
+            android:name=".ui.CalibrationActivity"
+            android:exported="false"
+            android:label="@string/calibration_title" />
+
+        <!-- Emotion Engine v2: live AU/distribution debug view for report screenshots -->
+        <activity
+            android:name=".ui.EmotionLabActivity"
+            android:exported="false"
+            android:label="@string/emotion_lab_title" />
 
         <!-- Transparent activity used by the IME to request the CAMERA permission -->
         <activity

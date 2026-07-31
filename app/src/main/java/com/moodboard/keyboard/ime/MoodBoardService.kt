@@ -18,6 +18,7 @@ import com.moodboard.keyboard.camera.PermissionActivity
 import com.moodboard.keyboard.databinding.KeyboardViewBinding
 import com.moodboard.keyboard.emotion.Emotion
 import com.moodboard.keyboard.emotion.EmotionAnalyzer
+import com.moodboard.keyboard.emotion.EmotionResult
 import com.moodboard.keyboard.stickers.EmojiAdapter
 import com.moodboard.keyboard.stickers.StickerAdapter
 import com.moodboard.keyboard.stickers.StickerItem
@@ -55,7 +56,7 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
     @Volatile private var locked = false
 
     private var currentEmotion = Emotion.NEUTRAL
-    private var stableCount = 0
+    private var lastResult: EmotionResult? = null
     private var lastTs = 0L
 
     override fun onCreateInputView(): View {
@@ -74,6 +75,7 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.btnMood.setOnClickListener { onMoodTapped() }
         binding.btnSettings.setOnClickListener { openSettings() }
         binding.btnBackToKeys.setOnClickListener { showKeys() }
+        binding.calibrationNudge.setOnClickListener { openSettings() }
 
         showKeys()
         return binding.root
@@ -115,9 +117,9 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
     private fun startScan() {
         mode = Mode.CAMERA
         locked = false
-        stableCount = 0
         lastTs = 0L
         currentEmotion = Emotion.NEUTRAL
+        lastResult = null
         binding.qwerty.visibility = View.GONE
         binding.stickerGrid.visibility = View.GONE
         binding.cameraContainer.visibility = View.VISIBLE
@@ -125,6 +127,8 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.progress.visibility = View.GONE
         binding.btnMood.text = "✓ Use mood"
         binding.cameraHint.text = "Starting camera…"
+        binding.cameraWhyText.text = ""
+        binding.calibrationNudge.visibility = if (prefs.neutralBaseline.isBlank()) View.VISIBLE else View.GONE
         updateStatus("Look at the camera…")
 
         camera = KeyboardCameraManager(this).also { cam ->
@@ -153,23 +157,30 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         main.post { updateLive(result) }
     }
 
-    private fun updateLive(result: EmotionAnalyzer.Result) {
+    private fun updateLive(result: EmotionResult) {
         if (mode != Mode.CAMERA || locked) return
         if (!result.hasFace) {
             binding.cameraHint.text = "Center your face in the frame"
+            binding.cameraWhyText.text = ""
             updateStatus("Looking for your face…")
-            stableCount = 0
             return
         }
-        val pct = (result.confidence * 100).toInt()
-        binding.cameraHint.text = "${result.emotion.emoji}  ${result.emotion.label}  $pct%"
-        if (result.emotion == currentEmotion) stableCount++ else { currentEmotion = result.emotion; stableCount = 1 }
+        currentEmotion = result.emotion
+        lastResult = result
+
+        val top3 = result.distribution.joinToString("   ") { (e, p) -> "${e.emoji}${(p * 100).toInt()}%" }
+        binding.cameraHint.text = "${result.emotion.emoji} ${result.emotion.label}  ·  $top3"
+        binding.cameraWhyText.text = result.contributors.take(3).joinToString(" · ") { it.auLabel }
+
         // Wait for an actual expression: never auto-lock on Neutral.
         if (currentEmotion == Emotion.NEUTRAL) {
             updateStatus("Make a clear face — smile, frown, brows up… or tap ✓ Use mood")
         } else {
+            val pct = (result.confidence * 100).toInt()
             updateStatus("Detecting… ${result.emotion.label} ($pct%)")
-            if (stableCount >= STABLE_FRAMES) lockAndFetch(currentEmotion)
+            // ExpressionClassifier owns the 3-evaluation hysteresis (SPEC_V2 A.6.4);
+            // auto-lock only once it reports the label as confirmed.
+            if (result.locked) lockAndFetch(currentEmotion)
         }
     }
 
@@ -184,7 +195,17 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         updateStatus("Mood: ${emotion.label} ${emotion.emoji} · finding stickers…")
 
         scope.launch {
-            val res = stickerRepo.search(emotion)
+            val res = stickerRepo.search(
+                lastResult ?: EmotionResult(
+                    hasFace = true,
+                    emotion = emotion,
+                    confidence = 1f,
+                    distribution = listOf(emotion to 1f),
+                    contributors = emptyList(),
+                    intensity = 1f,
+                    calibrated = false
+                )
+            )
             binding.progress.visibility = View.GONE
             res.onSuccess { list ->
                 if (list.isNotEmpty()) showStickers(emotion, list)
@@ -258,6 +279,4 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         camera?.stop(); analyzer?.close(); scope.cancel()
         super.onDestroy()
     }
-
-    companion object { private const val STABLE_FRAMES = 5 }
 }

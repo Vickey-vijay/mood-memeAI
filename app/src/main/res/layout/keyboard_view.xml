@@ -94,16 +94,46 @@
                 android:layout_height="match_parent" />
 
             <TextView
-                android:id="@+id/cameraHint"
-                android:layout_width="wrap_content"
+                android:id="@+id/calibrationNudge"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="10dp"
+                android:layout_gravity="top"
                 android:background="#99000000"
-                android:padding="8dp"
+                android:padding="6dp"
                 android:textColor="@color/white"
-                android:textSize="13sp"
-                android:text="@string/scanning" />
+                android:textSize="11sp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="@string/calibrate_nudge" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:background="#99000000"
+                android:padding="8dp">
+
+                <TextView
+                    android:id="@+id/cameraHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:text="@string/scanning" />
+
+                <TextView
+                    android:id="@+id/cameraWhyText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center_horizontal"
+                    android:textColor="#FFB9BEC9"
+                    android:textSize="11sp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
         </FrameLayout>
 
         <ProgressBar

@@ -20,6 +20,31 @@
     <string name="add_sticker">Add sticker from gallery</string>
     <string name="no_custom_stickers">No custom stickers yet. Tap + to add.</string>
 
+    <!-- Mood-categorised sticker library (SPEC_V2 Part B) -->
+    <string name="total_stickers_count">%1$d stickers total</string>
+    <string name="btn_import_gallery">Import from gallery</string>
+    <string name="btn_import_folder">Import a folder</string>
+    <string name="btn_import_folder_short">Import folder</string>
+    <string name="mood_empty_state">No stickers in this mood yet.\n\nTap + to add from your gallery, use Import folder above, or share a sticker into MoodBoard from any app.</string>
+    <string name="pick_mood_title">Save to which mood?</string>
+    <string name="import_folder_title">Import stickers from a folder</string>
+    <string name="import_folder_explanation">MoodBoard can\'t read WhatsApp\'s own private sticker storage - no app can, by Android\'s design. What does work: pick WhatsApp\'s received-stickers folder below (readable via Android\'s file picker), or choose any other folder on your device.</string>
+    <string name="btn_import_whatsapp">Import WhatsApp stickers</string>
+    <string name="btn_import_other_folder">Choose a different folder</string>
+    <string name="imported_count">Imported %1$d sticker(s)</string>
+    <string name="import_none_found">No images found in that folder</string>
+    <string name="sticker_action_set_cover">Set as cover</string>
+    <string name="sticker_action_move">Move to another mood</string>
+    <string name="sticker_action_favorite">Favourite</string>
+    <string name="sticker_action_unfavorite">Remove favourite</string>
+    <string name="sticker_action_delete">Delete</string>
+    <string name="delete_sticker_title">Delete sticker?</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="receive_sticker_title">Save to MoodBoard</string>
+    <string name="receive_sticker_saved">Saved to MoodBoard</string>
+    <string name="receive_sticker_failed">Couldn\'t save that sticker</string>
+
     <!-- Keyboard UI -->
     <string name="cd_mood">Scan mood</string>
     <string name="cd_abc">Letters</string>
@@ -32,4 +57,28 @@
     <string name="no_results">No stickers found. Try again.</string>
     <string name="key_space">space</string>
     <string name="key_enter">return</string>
+
+    <!-- Emotion Engine v2: calibration -->
+    <string name="calibrate_nudge">Calibrate your neutral face for better accuracy — tap ⚙</string>
+    <string name="calibration_title">Calibrate Neutral Face</string>
+    <string name="calibration_intro">Hold a relaxed, neutral expression. This takes 3 seconds and helps MoodBoard read your face accurately.</string>
+    <string name="calibration_relax">Relax your face…</string>
+    <string name="calibration_hold_still">Hold still…</string>
+    <string name="calibration_success">Calibrated! Your neutral face is saved.</string>
+    <string name="calibration_retry_msg">Hold a relaxed face and try again.</string>
+    <string name="btn_start_calibration">Start</string>
+    <string name="btn_retry">Retry</string>
+    <string name="btn_done">Done</string>
+    <string name="calibration_card_title">Neutral face calibration</string>
+    <string name="calibration_state_calibrated">Calibrated on %1$s</string>
+    <string name="calibration_state_uncalibrated">Not calibrated — accuracy may vary</string>
+    <string name="btn_calibrate">Calibrate neutral face</string>
+    <string name="btn_recalibrate">Re-calibrate</string>
+    <string name="btn_emotion_lab">Open Emotion Lab</string>
+
+    <!-- Emotion Lab -->
+    <string name="emotion_lab_title">Emotion Lab</string>
+    <string name="lab_calibrated">Calibrated on %1$s</string>
+    <string name="lab_uncalibrated">Not calibrated</string>
+    <string name="lab_au_header">Action Units</string>
 </resources>

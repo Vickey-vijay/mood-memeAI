@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/kb_background"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/calibration_title"
+        android:textColor="@color/kb_text"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/calibration_intro"
+        android:textColor="#FFB9BEC9"
+        android:textSize="14sp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/card_bg">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/countdownText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:textSize="64sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:text="3" />
+
+        <ProgressBar
+            android:id="@+id/captureProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:indeterminate="true"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btnStart"
+        style="@style/SetupButton"
+        android:layout_marginTop="16dp"
+        android:text="@string/btn_start_calibration" />
+
+    <Button
+        android:id="@+id/btnRetry"
+        style="@style/SetupButton"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:text="@string/btn_retry" />
+
+    <Button
+        android:id="@+id/btnDone"
+        style="@style/SetupButton"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:text="@string/btn_done" />
+
+</LinearLayout>

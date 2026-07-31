@@ -4,32 +4,62 @@
     android:layout_height="match_parent"
     android:background="@color/kb_background">
 
-    <TextView
-        android:id="@+id/emptyLabel"
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/totalCountText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/kb_text"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnImportGallery"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/mood_btn_bg"
+                android:text="@string/btn_import_gallery"
+                android:textAllCaps="false"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/btnImportFolder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/mood_btn_bg"
+                android:text="@string/btn_import_folder"
+                android:textAllCaps="false"
+                android:textColor="@color/white" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/moodGrid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/header"
+        android:padding="6dp" />
+
+    <ProgressBar
+        android:id="@+id/progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="@string/no_custom_stickers"
-        android:textColor="#FFB9BEC9"
-        android:textSize="15sp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/customGrid"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="6dp" />
-
-    <Button
-        android:id="@+id/btnAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/mood_btn_bg"
-        android:paddingStart="22dp"
-        android:paddingEnd="22dp"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        android:text="@string/add_sticker" />
+        android:visibility="gone" />
 </RelativeLayout>

@@ -53,7 +53,30 @@ declares it accepts images** (the Commit Content API).
 - The built-in **GIPHY demo key is shared and rate-limited** — add your own key
   for dependable results.
 - Switch to **Tenor** in Setup if you prefer (needs a Google Tenor key).
-- No network → only your **imported** stickers show (still usable).
+- No network → only your **imported** stickers show (still usable, retrieval order
+  below).
+
+## 5b. Getting your existing WhatsApp stickers in — what's really possible
+
+- **Not possible, by design:** reading WhatsApp's sticker/pack storage directly.
+  It lives under `/data/data/com.whatsapp/...`, which Android's app sandbox makes
+  unreadable to any other app without root. There is also no public WhatsApp API
+  to *enumerate* a user's stickers — WhatsApp's sticker API only lets a
+  third-party app *offer* a pack *to* WhatsApp, not read one back. MoodBoard does
+  not attempt a workaround for this, and no legitimate app can.
+- **What does work, and is implemented:**
+  1. **Share → MoodBoard** on a sticker already in a WhatsApp chat (or any app).
+  2. **Import a folder → Import WhatsApp stickers**, which opens Android's
+     Storage Access Framework folder picker pre-pointed at
+     `Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Stickers` — the
+     *received-stickers* folder WhatsApp itself writes to, which (unlike its
+     private app data) sits under `Android/media` and is SAF-readable. If that
+     folder doesn't exist on a device the picker just opens at its default
+     location — it never crashes.
+  3. **Import from gallery**, for stickers already saved to photos.
+- Sticker retrieval order at scan time (SPEC_V2 B.5): your own stickers for the
+  detected mood (favourites first) → your own stickers for the runner-up mood if
+  you have fewer than 12 → GIPHY/Tenor, only if online and enabled in Settings.
 
 ## 6. Keyboard scope (intentionally minimal for v1)
 
