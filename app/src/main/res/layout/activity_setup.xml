@@ -16,74 +16,188 @@
             android:layout_height="wrap_content"
             android:text="@string/setup_title"
             android:textColor="@color/kb_text"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="@string/setup_intro"
-            android:textColor="#FFB9BEC9"
-            android:textSize="14sp" />
+            android:textColor="@color/kb_text_muted"
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-        <TextView style="@style/SetupStep" android:text="@string/step1" />
-        <Button
-            android:id="@+id/btnEnable"
-            style="@style/SetupButton"
-            android:text="@string/btn_enable" />
+        <!-- Keyboard enable / switch card -->
+        <LinearLayout style="@style/SetupCard">
+            <LinearLayout style="@style/SetupCardHeaderRow">
+                <ImageView
+                    style="@style/SetupCardIcon"
+                    android:src="@drawable/ic_keyboard"
+                    android:contentDescription="@null" />
+                <TextView style="@style/SetupCardTitle" android:text="@string/step1" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/btnEnable"
+                style="@style/SetupButton"
+                android:drawableStart="@drawable/ic_settings"
+                android:text="@string/btn_enable" />
 
-        <TextView style="@style/SetupStep" android:text="@string/step2" />
-        <Button
-            android:id="@+id/btnSwitch"
-            style="@style/SetupButton"
-            android:text="@string/btn_switch" />
+            <TextView style="@style/SetupCardBody" android:text="@string/step2" />
+            <Button
+                android:id="@+id/btnSwitch"
+                style="@style/SetupButton"
+                android:drawableStart="@drawable/ic_keyboard"
+                android:text="@string/btn_switch" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="16dp"
             android:text="@string/setup_ready"
-            android:textColor="#FF8FE39B"
-            android:textSize="14sp" />
+            android:textColor="@color/md_success"
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="18dp"
-            android:background="#33FFFFFF" />
+        <!-- Sticker library card -->
+        <LinearLayout style="@style/SetupCard">
+            <LinearLayout style="@style/SetupCardHeaderRow">
+                <ImageView
+                    style="@style/SetupCardIcon"
+                    android:src="@drawable/ic_stickers"
+                    android:contentDescription="@null" />
+                <TextView style="@style/SetupCardTitle" android:text="@string/manage_stickers" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/btnManageStickers"
+                style="@style/SetupButton"
+                android:drawableStart="@drawable/ic_stickers"
+                android:text="@string/btn_manage_stickers" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/btnManageStickers"
-            style="@style/SetupButton"
-            android:layout_marginTop="18dp"
-            android:text="@string/btn_manage_stickers" />
+        <!-- Calibration / Emotion Lab card -->
+        <LinearLayout style="@style/SetupCard">
+            <LinearLayout style="@style/SetupCardHeaderRow">
+                <ImageView
+                    style="@style/SetupCardIcon"
+                    android:src="@drawable/ic_calibrate"
+                    android:contentDescription="@null" />
+                <TextView style="@style/SetupCardTitle" android:text="@string/calibration_card_title" />
+            </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="18dp"
-            android:background="#33FFFFFF" />
+            <TextView
+                android:id="@+id/calibrationStateText"
+                style="@style/SetupCardBody"
+                android:text="@string/calibration_state_uncalibrated" />
 
-        <TextView style="@style/SetupStep" android:text="@string/calibration_card_title" />
+            <Button
+                android:id="@+id/btnCalibrate"
+                style="@style/SetupButton"
+                android:drawableStart="@drawable/ic_calibrate"
+                android:text="@string/btn_calibrate" />
 
-        <TextView
-            android:id="@+id/calibrationStateText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/calibration_state_uncalibrated"
-            android:textColor="#FFB9BEC9"
-            android:textSize="13sp" />
+            <Button
+                android:id="@+id/btnEmotionLab"
+                style="@style/SetupButton"
+                android:drawableStart="@drawable/ic_lab"
+                android:text="@string/btn_emotion_lab" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/btnCalibrate"
-            style="@style/SetupButton"
-            android:text="@string/btn_calibrate" />
+        <!-- Meme pre-cache card (SPEC_V3 B) -->
+        <LinearLayout style="@style/SetupCard">
+            <LinearLayout style="@style/SetupCardHeaderRow">
+                <ImageView
+                    style="@style/SetupCardIcon"
+                    android:src="@drawable/ic_refresh"
+                    android:contentDescription="@null" />
+                <TextView style="@style/SetupCardTitle" android:text="@string/meme_cache_card_title" />
+            </LinearLayout>
 
-        <Button
-            android:id="@+id/btnEmotionLab"
-            style="@style/SetupButton"
-            android:text="@string/btn_emotion_lab" />
+            <TextView
+                android:id="@+id/memeCacheStatsText"
+                style="@style/SetupCardBody"
+                android:text="@string/meme_cache_never" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/prefetch_enabled_label"
+                    android:textColor="@color/kb_text"
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                <Switch
+                    android:id="@+id/switchPrefetchEnabled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/prefetch_wifi_only_label"
+                    android:textColor="@color/kb_text"
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                <Switch
+                    android:id="@+id/switchPrefetchWifiOnly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnRefreshMemeCache"
+                style="@style/SetupButton"
+                android:layout_marginTop="10dp"
+                android:drawableStart="@drawable/ic_refresh"
+                android:text="@string/btn_refresh_meme_cache" />
+        </LinearLayout>
+
+        <!-- SPEC_V3 C.6 - floating meme button card -->
+        <LinearLayout style="@style/SetupCard">
+            <LinearLayout style="@style/SetupCardHeaderRow">
+                <ImageView
+                    style="@style/SetupCardIcon"
+                    android:src="@drawable/ic_bubble"
+                    android:contentDescription="@null" />
+                <TextView style="@style/SetupCardTitle" android:text="@string/overlay_card_title" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/SetupCardBody"
+                android:text="@string/overlay_card_explain" />
+
+            <TextView
+                android:id="@+id/overlayStateText"
+                style="@style/SetupCardBody"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/kb_text"
+                android:text="@string/overlay_state_stopped" />
+
+            <Button
+                android:id="@+id/btnOverlayStart"
+                style="@style/SetupButton"
+                android:drawableStart="@drawable/ic_bubble"
+                android:text="@string/btn_overlay_start" />
+
+            <Button
+                android:id="@+id/btnOverlayStop"
+                style="@style/SetupButton"
+                android:drawableStart="@drawable/ic_close"
+                android:text="@string/btn_overlay_stop" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

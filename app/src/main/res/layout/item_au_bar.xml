@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -12,26 +13,29 @@
         android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:textColor="@color/kb_text"
-        android:textSize="11sp"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
         android:maxLines="1"
         android:ellipsize="end" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/auProgress"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="6dp"
         android:layout_marginEnd="6dp"
-        android:max="100" />
+        android:max="100"
+        app:trackThickness="6dp"
+        app:trackCornerRadius="3dp"
+        app:indicatorColor="@color/kb_accent"
+        app:trackColor="@color/md_outline_variant" />
 
     <TextView
         android:id="@+id/auValue"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
-        android:textColor="#FFB9BEC9"
-        android:textSize="11sp"
+        android:textColor="@color/kb_text_muted"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
         android:gravity="end" />
 
 </LinearLayout>

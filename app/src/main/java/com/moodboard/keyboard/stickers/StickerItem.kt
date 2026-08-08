@@ -10,6 +10,10 @@ package com.moodboard.keyboard.stickers
  * @param mood       owning [com.moodboard.keyboard.emotion.Emotion.key] for user-imported
  *                   stickers (empty for online results)
  * @param favorite   true if the user has marked this (local) sticker as a favourite
+ * @param providerId GIPHY/Tenor item id for online results (SPEC_V3 A.5/A.6 identity),
+ *                   empty for local stickers
+ * @param rawText    provider title/tags/description text for online results, used by
+ *                   [MemeRelevance] (SPEC_V3 A.4); empty for local stickers
  */
 data class StickerItem(
     val previewUrl: String,
@@ -18,5 +22,7 @@ data class StickerItem(
     val isLocal: Boolean = false,
     val id: String = "",
     val mood: String = "",
-    val favorite: Boolean = false
+    val favorite: Boolean = false,
+    val providerId: String = "",
+    val rawText: String = ""
 )

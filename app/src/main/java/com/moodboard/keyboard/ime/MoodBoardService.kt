@@ -125,7 +125,7 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.cameraContainer.visibility = View.VISIBLE
         binding.btnBackToKeys.visibility = View.VISIBLE
         binding.progress.visibility = View.GONE
-        binding.btnMood.text = "✓ Use mood"
+        binding.btnMood.text = getString(R.string.btn_mood_use)
         binding.cameraHint.text = "Starting camera…"
         binding.cameraWhyText.text = ""
         binding.calibrationNudge.visibility = if (prefs.neutralBaseline.isBlank()) View.VISIBLE else View.GONE
@@ -187,11 +187,12 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
     private fun lockAndFetch(emotion: Emotion) {
         if (locked) return
         locked = true
+        prefs.incrementMoodUsage(emotion.key) // SPEC_V3 B.1 - drives the prefetch target list
         camera?.stop(); camera = null
         analyzer?.close(); analyzer = null
         binding.cameraContainer.visibility = View.GONE
         binding.progress.visibility = View.VISIBLE
-        binding.btnMood.text = "🙂 Mood"
+        binding.btnMood.text = getString(R.string.btn_mood_label)
         updateStatus("Mood: ${emotion.label} ${emotion.emoji} · finding stickers…")
 
         scope.launch {
@@ -224,6 +225,21 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.cameraContainer.visibility = View.GONE
         binding.stickerGrid.visibility = View.VISIBLE
         binding.btnBackToKeys.visibility = View.VISIBLE
+        updateAttribution()
+    }
+
+    /** SPEC_V3 A.7 - GIPHY/Tenor attribution, shown only when online results contributed. */
+    private fun updateAttribution() {
+        if (!stickerRepo.lastFetchHadOnlineResults) {
+            binding.attributionText.visibility = View.GONE
+            return
+        }
+        binding.attributionText.text = if (stickerRepo.lastFetchProvider == "tenor") {
+            getString(R.string.attribution_tenor)
+        } else {
+            getString(R.string.attribution_giphy)
+        }
+        binding.attributionText.visibility = View.VISIBLE
     }
 
     private fun showEmojiFallback(emotion: Emotion, why: String) {
@@ -236,6 +252,7 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.cameraContainer.visibility = View.GONE
         binding.stickerGrid.visibility = View.VISIBLE
         binding.btnBackToKeys.visibility = View.VISIBLE
+        binding.attributionText.visibility = View.GONE
     }
 
     private fun sendSticker(item: StickerItem) {
@@ -260,7 +277,8 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.cameraContainer.visibility = View.GONE
         binding.progress.visibility = View.GONE
         binding.btnBackToKeys.visibility = View.GONE
-        binding.btnMood.text = "🙂 Mood"
+        binding.attributionText.visibility = View.GONE
+        binding.btnMood.text = getString(R.string.btn_mood_label)
         updateStatus(getString(R.string.setup_intro))
     }
 

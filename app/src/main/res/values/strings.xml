@@ -46,9 +46,13 @@
     <string name="receive_sticker_failed">Couldn\'t save that sticker</string>
 
     <!-- Keyboard UI -->
+    <string name="btn_mood_label">Mood</string>
+    <string name="btn_mood_use">Use mood</string>
     <string name="cd_mood">Scan mood</string>
     <string name="cd_abc">Letters</string>
     <string name="cd_backspace">Backspace</string>
+    <string name="cd_shift">Shift</string>
+    <string name="cd_enter">Enter</string>
     <string name="cd_settings">Settings</string>
     <string name="scanning">Scanning your mood…</string>
     <string name="loading_stickers">Loading stickers…</string>
@@ -81,4 +85,67 @@
     <string name="lab_calibrated">Calibrated on %1$s</string>
     <string name="lab_uncalibrated">Not calibrated</string>
     <string name="lab_au_header">Action Units</string>
+
+    <!-- SPEC_V3 A.7: GIPHY/Tenor attribution, shown only when online results are present -->
+    <string name="attribution_giphy">Powered by GIPHY</string>
+    <string name="attribution_tenor">via Tenor</string>
+    <string name="meme_attribution_about">Online stickers are sourced from GIPHY and Tenor.</string>
+
+    <!-- SPEC_V3 B — meme pre-cache card -->
+    <string name="meme_cache_card_title">Meme cache</string>
+    <string name="meme_cache_stats">%1$d items · %2$s · last refresh: %3$s</string>
+    <string name="meme_cache_never">never</string>
+    <string name="btn_refresh_meme_cache">Refresh now</string>
+    <string name="meme_cache_refreshing">Refreshing meme cache…</string>
+    <string name="meme_cache_refresh_queued">Meme cache refresh queued</string>
+    <string name="prefetch_enabled_label">Pre-cache trending memes</string>
+    <string name="prefetch_wifi_only_label">Only on Wi-Fi</string>
+
+    <!-- SPEC_V3 C — floating overlay bubble -->
+    <string name="overlay_card_title">Floating meme button</string>
+    <string name="overlay_card_explain">A draggable bubble that floats over any app. Tap it to scan your face and pick a meme — no keyboard needed. Because an overlay can\'t type into another app\'s text box, the meme is copied to your clipboard (long-press the chat box → Paste) or sent through the share sheet.</string>
+    <string name="overlay_state_needs_permission">Display-over-other-apps permission not granted</string>
+    <string name="overlay_state_running">Running — the bubble is on screen</string>
+    <string name="overlay_state_stopped">Stopped</string>
+    <string name="btn_overlay_start">Start floating button</string>
+    <string name="btn_overlay_stop">Stop floating button</string>
+    <string name="overlay_started">Floating button started</string>
+    <string name="overlay_stopped">Floating button stopped</string>
+    <string name="overlay_permission_needed">Allow \"Display over other apps\" to use the floating button</string>
+    <string name="overlay_permission_unavailable">This device has no overlay permission screen</string>
+    <string name="overlay_permission_revoked">Overlay permission was revoked — floating button stopped</string>
+    <string name="overlay_bubble_cd">MoodBoard floating meme button</string>
+
+    <!-- Overlay foreground-service notification (SPEC_V3 C.4) -->
+    <string name="overlay_channel_name">Floating meme button</string>
+    <string name="overlay_channel_desc">Keeps the floating meme bubble on screen</string>
+    <string name="overlay_notif_title">MoodBoard floating button</string>
+    <string name="overlay_notif_text">Tap the bubble to scan your mood</string>
+    <string name="overlay_notif_stop">Stop</string>
+
+    <!-- Overlay panel -->
+    <string name="overlay_btn_rescan">Rescan</string>
+    <string name="overlay_btn_close">Close</string>
+    <string name="overlay_btn_use_mood">Use this mood</string>
+    <string name="overlay_btn_share">Share…</string>
+    <string name="overlay_starting_camera">Starting camera…</string>
+    <string name="overlay_look_at_camera">Look at the camera…</string>
+    <string name="overlay_center_face">Center your face in the frame</string>
+    <string name="overlay_make_a_face">Make a clear face — or tap Use this mood</string>
+    <string name="overlay_detecting">Detecting… %1$s (%2$d%%)</string>
+    <string name="overlay_finding">Mood: %1$s · finding memes…</string>
+    <string name="overlay_mood_tap">Mood: %1$s %2$s · tap a meme to copy</string>
+    <string name="overlay_mood_emoji">Mood: %1$s · memes unavailable · emoji instead</string>
+    <string name="overlay_tap_to_copy">Tap a meme to copy it · long-press to share</string>
+    <string name="overlay_tap_to_copy_emoji">Tap an emoji to copy it</string>
+    <string name="overlay_copying">Preparing…</string>
+    <string name="overlay_copied">Copied</string>
+    <string name="overlay_copied_hint">Copied — long-press the chat box and tap Paste.</string>
+    <string name="overlay_sharing">Opening share sheet…</string>
+    <string name="overlay_shared">Shared</string>
+    <string name="overlay_pick_first">Tap a meme first, then Share</string>
+    <string name="overlay_need_camera">Camera permission needed for the mood scan</string>
+    <string name="overlay_camera_busy">Camera is in use — close the keyboard scan first</string>
+    <string name="overlay_camera_error">Camera: %1$s</string>
+    <string name="overlay_model_failed">Couldn\'t load the face model</string>
 </resources>

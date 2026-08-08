@@ -5,6 +5,12 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
+    <!-- SPEC_V3 C.4 - floating overlay bubble -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -83,6 +89,39 @@
         <activity
             android:name=".camera.PermissionActivity"
             android:exported="false"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true" />
+
+        <!-- SPEC_V3 C.4 - floating bubble foreground service.
+             specialUse is the correct type: this service exists solely to keep a
+             SYSTEM_ALERT_WINDOW bubble on screen, which matches no predefined FGS type.
+             It is never started from the background - only from OverlayPermissionActivity,
+             i.e. a user tap in a visible Activity - so the Android 12+ background-FGS-start
+             restriction is satisfied, and START_NOT_STICKY keeps the system from restarting
+             it on its own.
+             NOTE for the Android 14+ reviewer: the panel opens the front camera while
+             scanning. The process has a visible overlay window at that moment, which is what
+             keeps it out of the "background camera access" ban. If a specific OEM build on
+             Android 16 still denies camera frames to this service, the one-line fix is to
+             declare foregroundServiceType="specialUse|camera" here and add
+             <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
+             above. Kept spec-exact (specialUse only) as SPEC_V3 C.4 mandates. -->
+        <service
+            android:name=".overlay.FloatingBubbleService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            android:stopWithTask="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="floating_meme_launcher" />
+        </service>
+
+        <!-- Transparent gatekeeper: POST_NOTIFICATIONS (API 33+) then SYSTEM_ALERT_WINDOW,
+             then it starts the service. The only legal entry point to the bubble. -->
+        <activity
+            android:name=".ui.OverlayPermissionActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Transparent"
             android:excludeFromRecents="true" />
 

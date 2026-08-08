@@ -9,13 +9,13 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.moodboard.keyboard.R
 import com.moodboard.keyboard.camera.KeyboardCameraManager
 import com.moodboard.keyboard.databinding.ActivityEmotionLabBinding
@@ -156,7 +156,7 @@ private class AuBarAdapter : RecyclerView.Adapter<AuBarAdapter.VH>() {
 
     class VH(v: View) : RecyclerView.ViewHolder(v) {
         val label: TextView = v.findViewById(R.id.auLabel)
-        val progress: ProgressBar = v.findViewById(R.id.auProgress)
+        val progress: LinearProgressIndicator = v.findViewById(R.id.auProgress)
         val value: TextView = v.findViewById(R.id.auValue)
     }
 }

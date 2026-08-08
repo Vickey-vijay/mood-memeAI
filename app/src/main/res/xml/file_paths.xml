@@ -3,4 +3,5 @@
     <cache-path name="shared_stickers" path="stickers/" />
     <files-path name="custom_stickers" path="custom_stickers/" />
     <files-path name="mood_stickers" path="stickers/" />
+    <files-path name="meme_cache" path="meme_cache/" />
 </paths>

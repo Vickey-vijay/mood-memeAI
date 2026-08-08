@@ -16,8 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/kb_text"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -32,6 +31,10 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/mood_btn_bg"
+                android:drawableStart="@drawable/ic_folder"
+                android:drawableTint="@color/white"
+                android:drawablePadding="6dp"
+                android:padding="10dp"
                 android:text="@string/btn_import_gallery"
                 android:textAllCaps="false"
                 android:textColor="@color/white" />
@@ -43,6 +46,10 @@
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
                 android:background="@drawable/mood_btn_bg"
+                android:drawableStart="@drawable/ic_folder"
+                android:drawableTint="@color/white"
+                android:drawablePadding="6dp"
+                android:padding="10dp"
                 android:text="@string/btn_import_folder"
                 android:textAllCaps="false"
                 android:textColor="@color/white" />

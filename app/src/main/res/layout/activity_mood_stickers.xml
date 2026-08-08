@@ -19,8 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@color/kb_text"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
 
         <Button
             android:id="@+id/btnImportFolder"
@@ -29,6 +28,11 @@
             android:background="@drawable/mood_btn_bg"
             android:paddingStart="14dp"
             android:paddingEnd="14dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:drawableStart="@drawable/ic_folder"
+            android:drawableTint="@color/white"
+            android:drawablePadding="6dp"
             android:text="@string/btn_import_folder_short"
             android:textAllCaps="false"
             android:textColor="@color/white" />
@@ -45,8 +49,8 @@
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
         android:text="@string/mood_empty_state"
-        android:textColor="#FFB9BEC9"
-        android:textSize="14sp" />
+        android:textColor="@color/kb_text_muted"
+        android:textAppearance="?attr/textAppearanceBodyMedium" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/stickerGrid"
@@ -71,6 +75,6 @@
         android:layout_margin="20dp"
         android:contentDescription="@string/add_sticker"
         app:backgroundTint="@color/kb_accent"
-        app:srcCompat="@android:drawable/ic_input_add"
+        app:srcCompat="@drawable/ic_add"
         app:tint="@color/white" />
 </RelativeLayout>

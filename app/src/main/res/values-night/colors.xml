@@ -1,0 +1,28 @@
+<resources>
+    <!-- System dark-mode variant. The app already defaults to a dark, violet-brand palette
+         (see values/colors.xml) because the keyboard/overlay are overwhelmingly used dark,
+         so this override keeps the same token values - it exists to satisfy the
+         Theme.Material3.DayNight contract explicitly rather than relying on values/ alone. -->
+    <color name="md_primary">#FF9C8CFF</color>
+    <color name="md_on_primary">#FF2B1F66</color>
+    <color name="md_primary_container">#FF483A99</color>
+    <color name="md_on_primary_container">#FFE4DEFF</color>
+
+    <color name="md_secondary">#FFC7C0DD</color>
+    <color name="md_on_secondary">#FF302B49</color>
+
+    <color name="md_surface">#FF121317</color>
+    <color name="md_on_surface">#FFE7E7EC</color>
+    <color name="md_surface_variant">#FF2B2F38</color>
+    <color name="md_on_surface_variant">#FFB9BEC9</color>
+    <color name="md_surface_container">#FF1C1E24</color>
+    <color name="md_surface_container_high">#FF2B2F38</color>
+
+    <color name="md_outline">#FF8A909C</color>
+    <color name="md_outline_variant">#FF3A3F4B</color>
+
+    <color name="md_error">#FFFF6B6B</color>
+    <color name="md_on_error">#FF2B0A0A</color>
+
+    <color name="md_success">#FF8FE39B</color>
+</resources>

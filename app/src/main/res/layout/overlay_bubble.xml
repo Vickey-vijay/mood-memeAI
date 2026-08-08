@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPEC_V3 C.3: the collapsed floating bubble, ~56dp, dragged via the service's
+  OnTouchListener.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bubbleRoot"
+    android:layout_width="56dp"
+    android:layout_height="56dp"
+    android:contentDescription="@string/overlay_bubble_cd"
+    android:focusable="false">
+
+    <ImageView
+        android:id="@+id/bubbleIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:background="@drawable/mood_btn_bg"
+        android:padding="12dp"
+        android:src="@drawable/ic_bubble"
+        android:tint="@color/white"
+        android:contentDescription="@null" />
+</FrameLayout>

@@ -1,11 +1,40 @@
 <resources>
-    <color name="kb_background">#FF20232A</color>
-    <color name="kb_key">#FF3A3F4B</color>
-    <color name="kb_key_special">#FF2B2F38</color>
+    <!-- Material 3 token set, dark-first (the keyboard/overlay UI is overwhelmingly seen
+         dark), keeping the existing violet brand hue. See values-night/colors.xml for the
+         system-dark-mode variant. -->
+    <color name="md_primary">#FF9C8CFF</color>
+    <color name="md_on_primary">#FF2B1F66</color>
+    <color name="md_primary_container">#FF483A99</color>
+    <color name="md_on_primary_container">#FFE4DEFF</color>
+
+    <color name="md_secondary">#FFC7C0DD</color>
+    <color name="md_on_secondary">#FF302B49</color>
+
+    <color name="md_surface">#FF16181D</color>
+    <color name="md_on_surface">#FFE7E7EC</color>
+    <color name="md_surface_variant">#FF2B2F38</color>
+    <color name="md_on_surface_variant">#FFB9BEC9</color>
+    <color name="md_surface_container">#FF20232A</color>
+    <color name="md_surface_container_high">#FF2B2F38</color>
+
+    <color name="md_outline">#FF8A909C</color>
+    <color name="md_outline_variant">#FF3A3F4B</color>
+
+    <color name="md_error">#FFFF6B6B</color>
+    <color name="md_on_error">#FF2B0A0A</color>
+
+    <color name="md_success">#FF8FE39B</color>
+
+    <!-- Legacy names kept as aliases so existing layouts/drawables keep working untouched. -->
+    <color name="kb_background">@color/md_surface</color>
+    <color name="kb_key">@color/md_surface_variant</color>
+    <color name="kb_key_special">#FF23262D</color>
     <color name="kb_key_pressed">#FF4F5666</color>
-    <color name="kb_text">#FFFFFFFF</color>
-    <color name="kb_accent">#FF7C5CFF</color>
-    <color name="kb_toolbar">#FF20232A</color>
+    <color name="kb_text">@color/md_on_surface</color>
+    <color name="kb_accent">@color/md_primary</color>
+    <color name="kb_toolbar">@color/md_surface_container</color>
+    <color name="kb_text_muted">@color/md_on_surface_variant</color>
+
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 </resources>

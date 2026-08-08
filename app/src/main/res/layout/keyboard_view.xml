@@ -24,8 +24,8 @@
             android:layout_height="36dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_settings"
-            android:src="@android:drawable/ic_menu_manage"
-            android:tint="@color/kb_text" />
+            android:src="@drawable/ic_settings"
+            android:tint="?attr/colorControlNormal" />
 
         <ImageButton
             android:id="@+id/btnBackToKeys"
@@ -34,8 +34,8 @@
             android:visibility="gone"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_abc"
-            android:src="@android:drawable/ic_menu_revert"
-            android:tint="@color/kb_text" />
+            android:src="@drawable/ic_keyboard"
+            android:tint="?attr/colorControlNormal" />
 
         <TextView
             android:id="@+id/statusText"
@@ -44,7 +44,7 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:textColor="@color/kb_text"
-            android:textSize="13sp"
+            android:textAppearance="?attr/textAppearanceBodySmall"
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@string/setup_intro" />
@@ -59,9 +59,12 @@
             android:background="@drawable/mood_btn_bg"
             android:textColor="@color/white"
             android:textAllCaps="false"
-            android:textSize="13sp"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            android:drawableStart="@drawable/ic_mood"
+            android:drawableTint="@color/white"
+            android:drawablePadding="6dp"
             android:contentDescription="@string/cd_mood"
-            android:text="🙂 Mood" />
+            android:text="@string/btn_mood_label" />
     </LinearLayout>
 
     <FrameLayout
@@ -101,7 +104,7 @@
                 android:background="#99000000"
                 android:padding="6dp"
                 android:textColor="@color/white"
-                android:textSize="11sp"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
                 android:gravity="center"
                 android:visibility="gone"
                 android:text="@string/calibrate_nudge" />
@@ -120,7 +123,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:textColor="@color/white"
-                    android:textSize="13sp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:text="@string/scanning" />
 
                 <TextView
@@ -129,8 +132,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:gravity="center_horizontal"
-                    android:textColor="#FFB9BEC9"
-                    android:textSize="11sp"
+                    android:textColor="@color/kb_text_muted"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
                     android:maxLines="1"
                     android:ellipsize="end" />
             </LinearLayout>
@@ -141,6 +144,23 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <!-- SPEC_V3 A.7: GIPHY/Tenor attribution, shown only when online results are present. -->
+        <TextView
+            android:id="@+id/attributionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/card_bg"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:textColor="@color/kb_text_muted"
+            android:textAppearance="?attr/textAppearanceLabelSmall"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

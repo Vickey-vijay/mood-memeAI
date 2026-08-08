@@ -1,12 +1,14 @@
 package com.moodboard.keyboard.ime
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.moodboard.keyboard.R
@@ -67,9 +69,15 @@ class QwertyKeyboardView @JvmOverloads constructor(
             // third row gets shift on the left and backspace on the right
             if (index == 2) {
                 rowLayout.addView(
-                    specialKey(if (symbolsMode) "=\\<" else shiftLabel(), weight = 1.5f) {
-                        if (symbolsMode) { /* secondary symbols not needed for v1 */ }
-                        else toggleShift()
+                    if (symbolsMode) {
+                        specialKey("=\\<", weight = 1.5f) { /* secondary symbols not needed for v1 */ }
+                    } else {
+                        iconKey(
+                            R.drawable.ic_shift,
+                            active = shifted || capsLock,
+                            weight = 1.5f,
+                            cd = resources.getString(R.string.cd_shift)
+                        ) { toggleShift() }
                     }
                 )
             }
@@ -82,7 +90,12 @@ class QwertyKeyboardView @JvmOverloads constructor(
             }
             if (index == 2) {
                 rowLayout.addView(
-                    specialKey("⌫", weight = 1.5f) { listener?.onBackspace() }
+                    iconKey(
+                        R.drawable.ic_backspace,
+                        active = false,
+                        weight = 1.5f,
+                        cd = resources.getString(R.string.cd_backspace)
+                    ) { listener?.onBackspace() }
                 )
             }
             addView(rowLayout)
@@ -100,14 +113,15 @@ class QwertyKeyboardView @JvmOverloads constructor(
             listener?.onSpace()
         })
         bottom.addView(letterKey(".") { listener?.onChar("."); })
-        bottom.addView(specialKey("⏎", weight = 1.8f) { listener?.onEnter() })
+        bottom.addView(
+            iconKey(
+                R.drawable.ic_enter,
+                active = false,
+                weight = 1.8f,
+                cd = resources.getString(R.string.cd_enter)
+            ) { listener?.onEnter() }
+        )
         addView(bottom)
-    }
-
-    private fun shiftLabel(): String = when {
-        capsLock -> "⇪"
-        shifted -> "⬆"
-        else -> "⇧"
     }
 
     private fun displayChar(c: Char): String =
@@ -164,6 +178,27 @@ class QwertyKeyboardView @JvmOverloads constructor(
         b.background = ContextCompat.getDrawable(context, bg)
         b.minWidth = 0
         b.minHeight = 0
+        b.stateListAnimator = null
+        val lp = LayoutParams(0, LayoutParams.MATCH_PARENT, weight)
+        lp.marginStart = dp(2)
+        lp.marginEnd = dp(2)
+        b.layoutParams = lp
+        b.setOnClickListener { onClick() }
+        return b
+    }
+
+    /** Icon-based special key (shift / backspace / enter) - D.1/D.3 icon overhaul. */
+    private fun iconKey(iconRes: Int, active: Boolean, weight: Float, cd: String, onClick: () -> Unit): ImageButton {
+        val b = ImageButton(context)
+        b.setImageResource(iconRes)
+        b.scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
+        b.contentDescription = cd
+        val tintColor = ContextCompat.getColor(context, if (active) R.color.kb_accent else R.color.kb_text)
+        b.imageTintList = ColorStateList.valueOf(tintColor)
+        b.background = ContextCompat.getDrawable(context, R.drawable.key_special_bg)
+        b.setPadding(dp(6), dp(6), dp(6), dp(6))
+        b.minimumWidth = 0
+        b.minimumHeight = 0
         b.stateListAnimator = null
         val lp = LayoutParams(0, LayoutParams.MATCH_PARENT, weight)
         lp.marginStart = dp(2)

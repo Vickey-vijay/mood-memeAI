@@ -12,8 +12,7 @@
         android:layout_marginBottom="8dp"
         android:text="@string/pick_mood_title"
         android:textColor="@color/kb_text"
-        android:textSize="17sp"
-        android:textStyle="bold" />
+        android:textAppearance="?attr/textAppearanceTitleMedium" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/pickerGrid"

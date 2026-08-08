@@ -11,8 +11,7 @@
         android:layout_margin="16dp"
         android:text="@string/emotion_lab_title"
         android:textColor="@color/kb_text"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
     <androidx.camera.view.PreviewView
         android:id="@+id/cameraPreview"
@@ -27,8 +26,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textColor="@color/kb_text"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
         android:text="@string/lab_uncalibrated" />
 
     <TextView
@@ -37,8 +35,8 @@
         android:layout_height="wrap_content"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:textColor="#FFB9BEC9"
-        android:textSize="13sp" />
+        android:textColor="@color/kb_text_muted"
+        android:textAppearance="?attr/textAppearanceBodySmall" />
 
     <TextView
         android:id="@+id/intensityText"
@@ -46,8 +44,8 @@
         android:layout_height="wrap_content"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:textColor="#FFB9BEC9"
-        android:textSize="13sp" />
+        android:textColor="@color/kb_text_muted"
+        android:textAppearance="?attr/textAppearanceBodySmall" />
 
     <TextView
         android:id="@+id/calibrationText"
@@ -56,13 +54,13 @@
         android:layout_marginBottom="8dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:textColor="#FF8FE39B"
-        android:textSize="13sp" />
+        android:textColor="@color/md_success"
+        android:textAppearance="?attr/textAppearanceBodySmall" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#33FFFFFF" />
+        android:background="@color/md_outline_variant" />
 
     <TextView
         android:layout_width="match_parent"
@@ -70,7 +68,7 @@
         android:padding="8dp"
         android:text="@string/lab_au_header"
         android:textColor="@color/kb_text"
-        android:textStyle="bold" />
+        android:textAppearance="?attr/textAppearanceTitleSmall" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/auList"
@@ -85,7 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:textColor="#FFB9BEC9"
-        android:textSize="12sp" />
+        android:textColor="@color/kb_text_muted"
+        android:textAppearance="?attr/textAppearanceLabelSmall" />
 
 </LinearLayout>

@@ -11,8 +11,7 @@
         android:layout_height="wrap_content"
         android:text="@string/calibration_title"
         android:textColor="@color/kb_text"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
     <TextView
         android:id="@+id/statusText"
@@ -20,8 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/calibration_intro"
-        android:textColor="#FFB9BEC9"
-        android:textSize="14sp" />
+        android:textColor="@color/kb_text_muted"
+        android:textAppearance="?attr/textAppearanceBodyMedium" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -60,6 +59,7 @@
         android:id="@+id/btnStart"
         style="@style/SetupButton"
         android:layout_marginTop="16dp"
+        android:drawableStart="@drawable/ic_camera"
         android:text="@string/btn_start_calibration" />
 
     <Button
@@ -67,6 +67,7 @@
         style="@style/SetupButton"
         android:layout_marginTop="16dp"
         android:visibility="gone"
+        android:drawableStart="@drawable/ic_refresh"
         android:text="@string/btn_retry" />
 
     <Button
@@ -74,6 +75,7 @@
         style="@style/SetupButton"
         android:layout_marginTop="16dp"
         android:visibility="gone"
+        android:drawableStart="@drawable/ic_check"
         android:text="@string/btn_done" />
 
 </LinearLayout>
