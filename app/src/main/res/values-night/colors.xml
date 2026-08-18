@@ -28,4 +28,6 @@
     <color name="md_success">#FF82C46C</color>
 
     <color name="kb_key_pressed">#FF4A3313</color>
+
+    <color name="kb_selection_overlay">#55F5A524</color>
 </resources>

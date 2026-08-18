@@ -12,4 +12,27 @@
         android:padding="4dp"
         android:scaleType="fitCenter"
         android:contentDescription="@string/cd_mood" />
+
+    <!-- Multi-select mode (client bug fix): both gone by default, so the keyboard grid
+         and floating-overlay grid (which reuse this same item layout and never turn
+         selection mode on) render exactly as before. -->
+    <View
+        android:id="@+id/selectionOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/kb_selection_overlay"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/selectionCheck"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="4dp"
+        android:padding="3dp"
+        android:background="@drawable/selection_check_bg"
+        android:src="@drawable/ic_check"
+        android:tint="@color/md_on_primary"
+        android:contentDescription="@string/cd_selected"
+        android:visibility="gone" />
 </FrameLayout>

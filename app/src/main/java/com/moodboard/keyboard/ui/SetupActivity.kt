@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.Constraints
+import androidx.core.widget.doAfterTextChanged
 import com.moodboard.keyboard.R
 import com.moodboard.keyboard.databinding.ActivitySetupBinding
 import com.moodboard.keyboard.overlay.FloatingBubbleService
@@ -14,20 +16,9 @@ import com.moodboard.keyboard.stickers.GiphyGifsSource
 import com.moodboard.keyboard.stickers.GiphyStickersSource
 import com.moodboard.keyboard.stickers.GiphyTrendingSource
 import com.moodboard.keyboard.stickers.ImgflipSource
-import com.moodboard.keyboard.stickers.MemeCache
-import com.moodboard.keyboard.stickers.MemeCulture
-import com.moodboard.keyboard.stickers.MemePrefetchWorker
+import com.moodboard.keyboard.stickers.MemeCategory
 import com.moodboard.keyboard.stickers.TenorSource
 import com.moodboard.keyboard.util.Prefs
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import java.util.concurrent.TimeUnit
 
 /** Onboarding: enable the keyboard and switch to it. API keys are built in. */
 class SetupActivity : AppCompatActivity() {
@@ -58,17 +49,13 @@ class SetupActivity : AppCompatActivity() {
 
         setUpMemeSourcesCard()
         setUpOverlayCard()
-        setUpMemeCacheCard()
         setUpAdvancedSection()
-        // SPEC_V3 B.3 - enqueue the periodic prefetch worker. KEEP so re-visiting Setup
-        // never resets an already-scheduled run.
-        enqueuePeriodicPrefetch(ExistingPeriodicWorkPolicy.KEEP)
     }
 
     // ---------------- Presentation: collapsible "Advanced" section ----------------
 
-    /** Purely visual grouping - meme sources / cache / floating button start collapsed so
-     *  the setup screen isn't a wall of identical cards. No effect on any of their behaviour. */
+    /** Purely visual grouping - meme sources / floating button start collapsed so the
+     *  setup screen isn't a wall of identical cards. No effect on any of their behaviour. */
     private fun setUpAdvancedSection() {
         binding.advancedHeader.setOnClickListener {
             val expanding = binding.advancedContent.visibility != View.VISIBLE
@@ -83,17 +70,16 @@ class SetupActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshCalibrationState()
-        refreshMemeCacheStats()
         refreshOverlayState()
     }
 
     // ---------------- Provider-aggregator architecture — meme sources card ----------------
 
-    /** Per-source on/off switches plus the optional Tenor key field. */
+    /** Per-source on/off switches, the "Meme style" category picker, and the optional Tenor key field. */
     private fun setUpMemeSourcesCard() {
         val prefs = Prefs(this)
 
-        setUpMemeCultureSpinner(prefs)
+        setUpMemeCategoryPicker(prefs)
 
         binding.switchSourceGiphyGifs.isChecked = prefs.isMemeSourceEnabled(GiphyGifsSource.ID)
         binding.switchSourceGiphyStickers.isChecked = prefs.isMemeSourceEnabled(GiphyStickersSource.ID)
@@ -127,23 +113,31 @@ class SetupActivity : AppCompatActivity() {
     }
 
     /**
-     * "Meme region" selector (SPEC_V4). Item order in [R.array.meme_culture_options]
-     * (Tamil, Telugu, Malayalam, Kannada, All South Indian, Global) MUST stay in sync with
-     * [MemeCulture]'s declaration order - the spinner maps position <-> enum by ordinal.
+     * "Meme style" picker (MAJOR SIMPLIFICATION — client requirement: "give us some
+     * options to type our fav! ... Or type your own"). Item order in
+     * [R.array.meme_category_options] MUST stay in sync with [MemeCategory]'s declaration
+     * order - the spinner maps position <-> enum by ordinal. The free-text field always
+     * overrides the preset when non-blank (see
+     * [com.moodboard.keyboard.stickers.MemeQueryBank.buildQuery]).
      */
-    private fun setUpMemeCultureSpinner(prefs: Prefs) {
-        val cultures = MemeCulture.values()
+    private fun setUpMemeCategoryPicker(prefs: Prefs) {
+        val categories = MemeCategory.values()
         val adapter = ArrayAdapter.createFromResource(
-            this, R.array.meme_culture_options, android.R.layout.simple_spinner_item
+            this, R.array.meme_category_options, android.R.layout.simple_spinner_item
         ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-        binding.spinnerMemeCulture.adapter = adapter
-        binding.spinnerMemeCulture.setSelection(prefs.memeCulture.ordinal, false)
+        binding.spinnerMemeCategory.adapter = adapter
+        binding.spinnerMemeCategory.setSelection(prefs.memeCategory.ordinal, false)
 
-        binding.spinnerMemeCulture.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spinnerMemeCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                cultures.getOrNull(position)?.let { prefs.memeCulture = it }
+                categories.getOrNull(position)?.let { prefs.memeCategory = it }
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        binding.inputMemeCategoryCustom.setText(prefs.memeCategoryCustom)
+        binding.inputMemeCategoryCustom.doAfterTextChanged { editable ->
+            prefs.memeCategoryCustom = editable?.toString().orEmpty()
         }
     }
 
@@ -191,75 +185,5 @@ class SetupActivity : AppCompatActivity() {
         }
         binding.btnCalibrate.text = if (prefs.neutralBaseline.isNotBlank())
             getString(R.string.btn_recalibrate) else getString(R.string.btn_calibrate)
-    }
-
-    // ---------------- SPEC_V3 B — meme cache card ----------------
-
-    private fun setUpMemeCacheCard() {
-        val prefs = Prefs(this)
-        binding.switchPrefetchEnabled.isChecked = prefs.prefetchEnabled
-        binding.switchPrefetchWifiOnly.isChecked = prefs.prefetchWifiOnly
-
-        binding.switchPrefetchEnabled.setOnCheckedChangeListener { _, checked ->
-            prefs.prefetchEnabled = checked
-        }
-        binding.switchPrefetchWifiOnly.setOnCheckedChangeListener { _, checked ->
-            prefs.prefetchWifiOnly = checked
-            // Constraints changed - UPDATE the already-scheduled periodic work in place.
-            enqueuePeriodicPrefetch(ExistingPeriodicWorkPolicy.UPDATE)
-        }
-        binding.btnRefreshMemeCache.setOnClickListener { refreshMemeCacheNow() }
-    }
-
-    private fun refreshMemeCacheNow() {
-        binding.memeCacheStatsText.text = getString(R.string.meme_cache_refreshing)
-        val request = OneTimeWorkRequestBuilder<MemePrefetchWorker>().build()
-        val workManager = WorkManager.getInstance(this)
-        workManager.enqueueUniqueWork(ONE_SHOT_WORK_NAME, ExistingWorkPolicy.REPLACE, request)
-        toastQueued()
-        workManager.getWorkInfoByIdLiveData(request.id).observe(this) { info ->
-            if (info != null && info.state.isFinished) refreshMemeCacheStats()
-        }
-    }
-
-    private fun toastQueued() {
-        android.widget.Toast.makeText(this, R.string.meme_cache_refresh_queued, android.widget.Toast.LENGTH_SHORT).show()
-    }
-
-    private fun refreshMemeCacheStats() {
-        val stats = MemeCache(this).stats()
-        val sizeText = formatBytes(stats.totalBytes)
-        val lastRefreshText = if (stats.lastRefreshAt > 0) {
-            java.text.SimpleDateFormat("MMM d, h:mm a", java.util.Locale.getDefault())
-                .format(java.util.Date(stats.lastRefreshAt))
-        } else {
-            getString(R.string.meme_cache_never)
-        }
-        binding.memeCacheStatsText.text =
-            getString(R.string.meme_cache_stats, stats.itemCount, sizeText, lastRefreshText)
-    }
-
-    private fun formatBytes(bytes: Long): String = when {
-        bytes >= 1024 * 1024 -> String.format(java.util.Locale.getDefault(), "%.1f MB", bytes / (1024.0 * 1024.0))
-        bytes >= 1024 -> String.format(java.util.Locale.getDefault(), "%.1f KB", bytes / 1024.0)
-        else -> "$bytes B"
-    }
-
-    private fun enqueuePeriodicPrefetch(policy: ExistingPeriodicWorkPolicy) {
-        val prefs = Prefs(this)
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(if (prefs.prefetchWifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .build()
-        val request = PeriodicWorkRequestBuilder<MemePrefetchWorker>(12, TimeUnit.HOURS)
-            .setConstraints(constraints)
-            .build()
-        WorkManager.getInstance(this)
-            .enqueueUniquePeriodicWork(PERIODIC_WORK_NAME, policy, request)
-    }
-
-    companion object {
-        private const val PERIODIC_WORK_NAME = "meme_prefetch_periodic"
-        private const val ONE_SHOT_WORK_NAME = "meme_prefetch_oneshot"
     }
 }

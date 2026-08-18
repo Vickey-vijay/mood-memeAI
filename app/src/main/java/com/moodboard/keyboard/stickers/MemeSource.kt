@@ -24,10 +24,10 @@ interface MemeSource {
 
     /**
      * Fetches up to [limit] candidates for [query] at [offset]. Must never throw for a
-     * routine failure (network error, bad JSON, empty result) - callers
-     * ([MemeAggregator], [MemePrefetchWorker]) treat an empty list as "this source had
-     * nothing this time", not an error. Must do its own I/O off the caller's thread
-     * (implementations dispatch to [kotlinx.coroutines.Dispatchers.IO]).
+     * routine failure (network error, bad JSON, empty result) - the caller
+     * ([MemeAggregator]) treats an empty list as "this source had nothing this time", not
+     * an error. Must do its own I/O off the caller's thread (implementations dispatch to
+     * [kotlinx.coroutines.Dispatchers.IO]).
      */
     suspend fun fetch(query: String, limit: Int, offset: Int, prefs: Prefs): List<StickerItem>
 }

@@ -273,6 +273,56 @@ class StickerLibrary(context: Context) {
         true
     }
 
+    /**
+     * Bulk move for multi-select (client bug fix: ~900 stickers all mis-filed under one
+     * mood need moving in one action). Each file still has to be physically copied into
+     * its new mood directory, but unlike calling [move] once per id, the index is written
+     * to disk exactly once at the end instead of once per item - the difference between a
+     * handful of ms and hundreds of index.json rewrites for a large selection.
+     */
+    fun moveAll(ids: List<String>, mood: Emotion): Int = synchronized(lock) {
+        var moved = 0
+        val destDir = File(rootDir, mood.key).apply { mkdirs() }
+        for (id in ids) {
+            val idx = items.indexOfFirst { it.id == id }
+            if (idx < 0) continue
+            val entry = items[idx]
+            if (entry.mood == mood.key) { moved++; continue }
+            val src = File(rootDir, entry.file)
+            val dest = File(destDir, src.name)
+            val ok = try {
+                src.copyTo(dest, overwrite = true)
+                src.delete()
+                true
+            } catch (t: Throwable) {
+                Log.w(TAG, "moveAll: failed for $id", t)
+                false
+            }
+            if (ok) {
+                items[idx] = entry.copy(mood = mood.key, file = "${mood.key}/${src.name}")
+                moved++
+            }
+        }
+        if (moved > 0) persist()
+        moved
+    }
+
+    /** Bulk delete for multi-select - one index write instead of one per item (see [moveAll]). */
+    fun deleteAll(ids: List<String>): Int = synchronized(lock) {
+        var deleted = 0
+        for (id in ids) {
+            val idx = items.indexOfFirst { it.id == id }
+            if (idx < 0) continue
+            val entry = items[idx]
+            File(rootDir, entry.file).delete()
+            items.removeAt(idx)
+            if (covers[entry.mood] == id) covers.remove(entry.mood)
+            deleted++
+        }
+        if (deleted > 0) persist()
+        deleted
+    }
+
     fun totalCount(): Int = synchronized(lock) { items.size }
 
     // ---------------- internals ----------------

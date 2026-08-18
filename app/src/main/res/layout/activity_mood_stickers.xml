@@ -5,29 +5,86 @@
     android:layout_height="match_parent"
     android:background="@color/kb_background">
 
+    <!-- Wraps both header rows so layout_below="@id/header" anchors below whichever one
+         is visible (see MoodStickersActivity#updateSelectionChrome). -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/moodTitleText"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/normalHeaderRow"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/kb_text"
-            android:textAppearance="?attr/textAppearanceTitleLarge" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp">
 
-        <Button
-            android:id="@+id/btnImportFolder"
-            style="@style/SetupButtonSecondary"
-            android:layout_width="wrap_content"
-            android:layout_marginTop="0dp"
-            app:icon="@drawable/ic_folder"
-            android:text="@string/btn_import_folder_short" />
+            <TextView
+                android:id="@+id/moodTitleText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/kb_text"
+                android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+            <Button
+                android:id="@+id/btnSelectMode"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/kb_accent"
+                android:textAllCaps="false"
+                android:text="@string/btn_select" />
+
+            <Button
+                android:id="@+id/btnImportFolder"
+                style="@style/SetupButtonSecondary"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginStart="4dp"
+                app:icon="@drawable/ic_folder"
+                android:text="@string/btn_import_folder_short" />
+        </LinearLayout>
+
+        <!-- Multi-select mode header (client bug fix): swapped in for normalHeaderRow via
+             visibility toggles, never both visible at once. -->
+        <LinearLayout
+            android:id="@+id/selectionHeaderRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/selectionCountText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/kb_text"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+            <Button
+                android:id="@+id/btnSelectAll"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/kb_accent"
+                android:textAllCaps="false"
+                android:text="@string/btn_select_all" />
+
+            <Button
+                android:id="@+id/btnClearSelection"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/kb_accent"
+                android:textAllCaps="false"
+                android:text="@string/btn_clear_selection" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Outcome 6: move/favourite/delete are long-press only, so hint at them in a
@@ -70,6 +127,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/moodHintText"
+        android:layout_above="@id/selectionActionBar"
         android:clipToPadding="false"
         android:padding="10dp" />
 
@@ -91,4 +149,41 @@
         app:backgroundTint="@color/kb_accent"
         app:srcCompat="@drawable/ic_add"
         app:tint="@color/md_on_primary" />
+
+    <!-- Multi-select bulk actions (client bug fix: move/delete many mis-filed stickers at
+         once). Replaces the FAB while selection mode is active; layout_above on
+         stickerGrid collapses to zero when this is gone, so the grid fills the screen
+         normally otherwise. -->
+    <LinearLayout
+        android:id="@+id/selectionActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:background="@color/kb_toolbar"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnMoveSelected"
+            style="@style/SetupButtonSecondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="6dp"
+            app:icon="@drawable/ic_move"
+            android:text="@string/sticker_action_move" />
+
+        <Button
+            android:id="@+id/btnDeleteSelected"
+            style="@style/SetupButtonDestructive"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="0dp"
+            android:layout_marginStart="6dp"
+            app:icon="@drawable/ic_delete"
+            android:text="@string/sticker_action_delete" />
+    </LinearLayout>
 </RelativeLayout>

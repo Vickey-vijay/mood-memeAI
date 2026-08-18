@@ -7,11 +7,9 @@ import kotlinx.coroutines.withContext
 /**
  * `/v1/gifs/trending` - ignores [fetch]'s `query` entirely (the endpoint takes none) and
  * just returns whatever is currently trending on GIPHY. Exists to "top up when a search
- * is thin" (brief item 2): it contributes candidates unconditionally on every scan, but
- * downstream [MemeRelevance] scoring means trending items with no emotion/culture keyword
- * hits only survive the cut when the other sources didn't produce enough on-topic results
- * to fill [MemeRelevance.filterRelevant]'s `minKeep` floor - i.e. exactly when a search
- * was thin.
+ * is thin": it contributes candidates unconditionally on every scan, interleaved with the
+ * query-based sources by [MemeAggregator] and screened for junk by [MemeRelevance] like
+ * everything else.
  */
 object GiphyTrendingSource : MemeSource {
     const val ID = "giphy_trending"

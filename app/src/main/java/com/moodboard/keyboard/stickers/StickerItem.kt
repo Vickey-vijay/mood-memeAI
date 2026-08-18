@@ -15,10 +15,9 @@ package com.moodboard.keyboard.stickers
  * @param rawText    provider title/tags/description text for online results, used by
  *                   [MemeRelevance] (SPEC_V3 A.4); empty for local stickers
  * @param source     [MemeSource.id] that produced this item ("giphy_gifs", "tenor",
- *                   "imgflip", ...) for online results, or the same tag carried through
- *                   from [MemeCache] for pre-cached results. Empty for local/user
- *                   stickers. Drives the multi-source "Powered by …" attribution label
- *                   (see [MemeAttribution]) - never used for relevance/dedupe.
+ *                   "imgflip", ...) for online results. Empty for local/user stickers.
+ *                   Drives the multi-source "Powered by …" attribution label (see
+ *                   [MemeAttribution]) - never used for relevance/dedupe.
  */
 data class StickerItem(
     val previewUrl: String,

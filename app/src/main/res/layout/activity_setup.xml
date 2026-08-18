@@ -140,18 +140,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="@string/meme_culture_label"
+                android:text="@string/meme_category_label"
                 android:textColor="@color/kb_text"
                 android:textAppearance="?attr/textAppearanceBodyMedium" />
 
             <Spinner
-                android:id="@+id/spinnerMemeCulture"
+                android:id="@+id/spinnerMemeCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/tile_bg"
                 android:padding="12dp"
                 android:spinnerMode="dropdown" />
+
+            <EditText
+                android:id="@+id/inputMemeCategoryCustom"
+                style="@style/SetupInput"
+                android:layout_marginTop="8dp"
+                android:hint="@string/hint_meme_category_custom"
+                android:inputType="text"
+                android:singleLine="true"
+                android:importantForAutofill="no" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -262,71 +271,6 @@
                 style="@style/SetupButtonSecondary"
                 app:icon="@drawable/ic_check"
                 android:text="@string/btn_save_tenor_key" />
-
-            <View style="@style/SetupDivider" android:layout_marginTop="18dp" />
-
-            <!-- Meme cache -->
-            <LinearLayout style="@style/SetupCardHeaderRow" android:layout_marginTop="18dp">
-                <ImageView
-                    style="@style/SetupCardIcon"
-                    android:src="@drawable/ic_refresh"
-                    android:contentDescription="@null" />
-                <TextView style="@style/SetupCardTitle" android:text="@string/meme_cache_card_title" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/memeCacheStatsText"
-                style="@style/SetupCardBody"
-                android:text="@string/meme_cache_never" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/prefetch_enabled_label"
-                    android:textColor="@color/kb_text"
-                    android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-                <Switch
-                    android:id="@+id/switchPrefetchEnabled"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/prefetch_wifi_only_label"
-                    android:textColor="@color/kb_text"
-                    android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-                <Switch
-                    android:id="@+id/switchPrefetchWifiOnly"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btnRefreshMemeCache"
-                style="@style/SetupButtonSecondary"
-                android:layout_marginTop="12dp"
-                app:icon="@drawable/ic_refresh"
-                android:text="@string/btn_refresh_meme_cache" />
 
             <View style="@style/SetupDivider" android:layout_marginTop="18dp" />
 

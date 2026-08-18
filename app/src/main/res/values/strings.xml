@@ -22,8 +22,9 @@
     <string name="btn_import_folder_short">Import folder</string>
     <string name="mood_empty_state">Nothing here yet — tap + to add stickers, or import a folder above.</string>
     <string name="pick_mood_title">Save to which mood?</string>
-    <string name="import_folder_title">Import stickers from a folder</string>
-    <string name="import_folder_explanation">WhatsApp keeps its stickers private, so pick its received-stickers folder below, or choose any other folder on your device.</string>
+    <string name="import_folder_title">Add stickers</string>
+    <string name="import_folder_explanation">WhatsApp keeps its stickers private, so pick individual stickers or its whole folder below — or choose any other folder on your device.</string>
+    <string name="btn_import_pick_files">Pick individual stickers</string>
     <string name="btn_import_whatsapp">Import WhatsApp stickers</string>
     <string name="btn_import_other_folder">Choose a different folder</string>
     <string name="imported_count">Imported %1$d sticker(s)</string>
@@ -41,7 +42,17 @@
     <string name="receive_sticker_saved_detail">Saved %1$d sticker(s) to %2$s %3$s · find them in My Stickers</string>
     <string name="receive_sticker_failed">Couldn\'t save that sticker</string>
     <string name="mood_pick_detected_row">%1$s  %2$s (detected)</string>
-    <string name="mood_stickers_hint">Long-press any sticker to set it as the cover, move it, favourite it, or delete it</string>
+    <string name="mood_stickers_hint">Tap a sticker for its options, or long-press to select several</string>
+
+    <!-- Multi-select mode (client bug fix: bulk move/delete for mis-filed stickers) -->
+    <string name="btn_select">Select</string>
+    <string name="selected_count">%1$d selected</string>
+    <string name="btn_select_all">Select all</string>
+    <string name="btn_clear_selection">Clear</string>
+    <string name="delete_selected_title">Delete %1$d sticker(s)?</string>
+    <string name="moved_count">Moved %1$d sticker(s)</string>
+    <string name="deleted_count">Deleted %1$d sticker(s)</string>
+    <string name="cd_selected">Selected</string>
 
     <!-- Client bug fix: long-press a sticker in the keyboard grid to keep it (outcome 4) -->
     <string name="sticker_save_hint">Long-press a sticker to save it to My Stickers</string>
@@ -114,26 +125,21 @@
     <string name="tenor_key_saved">Tenor key saved</string>
     <string name="tenor_key_cleared">Tenor key cleared — Tenor turned off</string>
 
-    <!-- SPEC_V4 — Meme region selector, defaults to Tamil (client bug report) -->
-    <string name="meme_culture_label">Meme region</string>
-    <string-array name="meme_culture_options">
-        <item>Tamil</item>
-        <item>Telugu</item>
-        <item>Malayalam</item>
-        <item>Kannada</item>
-        <item>All South Indian</item>
-        <item>Global</item>
+    <!-- MAJOR SIMPLIFICATION — dynamic "Meme style" category picker, client requirement:
+         "give us some options to type our fav! ... Or type your own" -->
+    <string name="meme_category_label">Meme style</string>
+    <string-array name="meme_category_options">
+        <item>Anything</item>
+        <item>Cinema / Movies</item>
+        <item>Cartoons</item>
+        <item>Anime</item>
+        <item>Babies &amp; kids</item>
+        <item>Animals &amp; pets</item>
+        <item>Celebrities</item>
+        <item>Sports</item>
+        <item>Reactions</item>
     </string-array>
-
-    <!-- SPEC_V3 B — meme pre-cache card -->
-    <string name="meme_cache_card_title">Meme cache</string>
-    <string name="meme_cache_stats">%1$d items · %2$s · last refreshed %3$s</string>
-    <string name="meme_cache_never">never</string>
-    <string name="btn_refresh_meme_cache">Refresh now</string>
-    <string name="meme_cache_refreshing">Refreshing…</string>
-    <string name="meme_cache_refresh_queued">Refresh queued</string>
-    <string name="prefetch_enabled_label">Pre-cache trending memes</string>
-    <string name="prefetch_wifi_only_label">Only on Wi-Fi</string>
+    <string name="hint_meme_category_custom">Or type your own (e.g. vadivelu)</string>
 
     <!-- SPEC_V3 C — floating overlay bubble -->
     <string name="overlay_card_title">Floating meme button</string>

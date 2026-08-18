@@ -14,11 +14,9 @@ import org.json.JSONObject
  * returns `{"success":true,"data":{"memes":[...]}}`), then filtered locally by matching
  * template names against emotion keyword stems.
  *
- * Because Imgflip's catalogue is generic-English meme culture, not South Indian film
- * comedy, [MemeAggregator] deliberately hands this source [MemeQueryBank.keywords] text
- * (e.g. "annoy irritat frustrat eye roll fed up cringe") rather than the culture-flavoured
- * actor-name query used for the search-based sources - actor names would never match a
- * template named "Distracted Boyfriend".
+ * Gets the same plain-English "<mood word> <category>" query as every other source (see
+ * [MemeQueryBank.buildQuery]) — unlike the old culture-flavoured actor-name queries, this
+ * generic English text is exactly what matching an Imgflip template name needs.
  */
 object ImgflipSource : MemeSource {
     const val ID = "imgflip"

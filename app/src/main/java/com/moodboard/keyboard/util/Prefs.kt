@@ -1,7 +1,7 @@
 package com.moodboard.keyboard.util
 
 import android.content.Context
-import com.moodboard.keyboard.stickers.MemeCulture
+import com.moodboard.keyboard.stickers.MemeCategory
 import org.json.JSONObject
 
 /** Tiny wrapper over SharedPreferences for API keys and provider choice. */
@@ -78,40 +78,29 @@ class Prefs(context: Context) {
     }
 
     /**
-     * Which meme culture pack to search first (SPEC_V3 A.2, narrowed in SPEC_V4 to a
-     * default of TAMIL after a client bug report: "the whole meme world is around Telugu
-     * ... I'm in TAMIL NADU, not Telugu states"). Default TAMIL.
-     *
-     * Migration: pre-SPEC_V4 builds stored either `"south_indian"` or `"generic"` here.
-     * `"south_indian"` (a mixed Tamil+Telugu+Malayalam+Kannada pool) has no direct
-     * SPEC_V4 equivalent and is exactly the thing the client complained about, so it
-     * migrates to the new TAMIL default on read, same as an unset/unrecognised value.
-     * `"generic"` maps to the renamed [MemeCulture.GLOBAL].
+     * Which meme style category to search (MAJOR SIMPLIFICATION, client requirement:
+     * "give us some options to type our fav! For example cartoons, cinema, baby, others
+     * ... He can choose in settings"). Default [MemeCategory.ANYTHING] (no extra term).
+     * Any unrecognised/legacy stored value (e.g. a pre-simplification "tamil"/"telugu"/
+     * culture value) falls back to ANYTHING rather than crashing.
      */
-    var memeCulture: MemeCulture
-        get() = when (sp.getString(KEY_MEME_CULTURE, VAL_TAMIL)) {
-            VAL_TELUGU -> MemeCulture.TELUGU
-            VAL_MALAYALAM -> MemeCulture.MALAYALAM
-            VAL_KANNADA -> MemeCulture.KANNADA
-            VAL_ALL_SOUTH_INDIAN -> MemeCulture.ALL_SOUTH_INDIAN
-            VAL_GLOBAL, LEGACY_VAL_GENERIC -> MemeCulture.GLOBAL
-            // Covers VAL_TAMIL, the legacy "south_indian" value, and anything else -
-            // TAMIL is the SPEC_V4 default for both new and upgrading users.
-            else -> MemeCulture.TAMIL
+    var memeCategory: MemeCategory
+        get() = try {
+            MemeCategory.valueOf(sp.getString(KEY_MEME_CATEGORY, MemeCategory.ANYTHING.name)!!)
+        } catch (t: Throwable) {
+            MemeCategory.ANYTHING
         }
-        set(v) = sp.edit()
-            .putString(
-                KEY_MEME_CULTURE,
-                when (v) {
-                    MemeCulture.TAMIL -> VAL_TAMIL
-                    MemeCulture.TELUGU -> VAL_TELUGU
-                    MemeCulture.MALAYALAM -> VAL_MALAYALAM
-                    MemeCulture.KANNADA -> VAL_KANNADA
-                    MemeCulture.ALL_SOUTH_INDIAN -> VAL_ALL_SOUTH_INDIAN
-                    MemeCulture.GLOBAL -> VAL_GLOBAL
-                }
-            )
-            .apply()
+        set(v) = sp.edit().putString(KEY_MEME_CATEGORY, v.name).apply()
+
+    /**
+     * Optional free-text meme category override (e.g. "vadivelu", "tamil comedy",
+     * "kollywood"), entered in the Setup "Meme style" card. Non-blank always overrides
+     * [memeCategory] at query-build time — see
+     * [com.moodboard.keyboard.stickers.MemeQueryBank.buildQuery].
+     */
+    var memeCategoryCustom: String
+        get() = sp.getString(KEY_MEME_CATEGORY_CUSTOM, "").orEmpty()
+        set(v) = sp.edit().putString(KEY_MEME_CATEGORY_CUSTOM, v.trim()).apply()
 
     /** Backing JSON store for [com.moodboard.keyboard.stickers.RecentlyShownStore] (SPEC_V3 A.5). */
     var recentlyShownJson: String
@@ -120,8 +109,10 @@ class Prefs(context: Context) {
 
     /**
      * Map of [com.moodboard.keyboard.emotion.Emotion.key] to how many times a scan has
-     * resolved to that mood (SPEC_V3 B.1). Drives [com.moodboard.keyboard.stickers.MemePrefetchWorker]'s
-     * data-driven prefetch target list. JSON-backed, e.g. `{"happy":12,"sad":3}`.
+     * resolved to that mood. Historically drove the now-removed background pre-cache
+     * worker's target list (SPEC_V3 B.1); kept as a harmless usage counter since it is
+     * still incremented from the IME and floating-bubble scan paths. JSON-backed, e.g.
+     * `{"happy":12,"sad":3}`.
      */
     var moodUsageCounts: Map<String, Int>
         get() {
@@ -148,16 +139,6 @@ class Prefs(context: Context) {
         current[emotionKey] = (current[emotionKey] ?: 0) + 1
         moodUsageCounts = current
     }
-
-    /** Master switch for the SPEC_V3 B.3 background pre-cache worker. Default on. */
-    var prefetchEnabled: Boolean
-        get() = sp.getBoolean(KEY_PREFETCH_ENABLED, true)
-        set(v) = sp.edit().putBoolean(KEY_PREFETCH_ENABLED, v).apply()
-
-    /** Whether the pre-cache worker requires unmetered (Wi-Fi) connectivity. Default on. */
-    var prefetchWifiOnly: Boolean
-        get() = sp.getBoolean(KEY_PREFETCH_WIFI_ONLY, true)
-        set(v) = sp.edit().putBoolean(KEY_PREFETCH_WIFI_ONLY, v).apply()
 
     /**
      * Last x position of the floating bubble in window coordinates (SPEC_V3 C.3).
@@ -195,22 +176,13 @@ class Prefs(context: Context) {
         private const val KEY_TONGUE_SUPPORTED = "tongue_supported"
         private const val KEY_ONLINE_STICKERS = "online_stickers"
         private const val KEY_PREFER_OWN_STICKERS = "prefer_own_stickers"
-        private const val KEY_MEME_CULTURE = "meme_culture"
+        private const val KEY_MEME_CATEGORY = "meme_category"
+        private const val KEY_MEME_CATEGORY_CUSTOM = "meme_category_custom"
         private const val KEY_RECENTLY_SHOWN = "recently_shown_v1"
         private const val KEY_MOOD_USAGE_COUNTS = "mood_usage_counts_v1"
-        private const val KEY_PREFETCH_ENABLED = "prefetch_enabled"
-        private const val KEY_PREFETCH_WIFI_ONLY = "prefetch_wifi_only"
         private const val KEY_BUBBLE_X = "overlay_bubble_x"
         private const val KEY_BUBBLE_Y = "overlay_bubble_y"
         private const val KEY_OVERLAY_ENABLED = "overlay_bubble_enabled"
-        private const val VAL_TAMIL = "tamil"
-        private const val VAL_TELUGU = "telugu"
-        private const val VAL_MALAYALAM = "malayalam"
-        private const val VAL_KANNADA = "kannada"
-        private const val VAL_ALL_SOUTH_INDIAN = "all_south_indian"
-        private const val VAL_GLOBAL = "global"
-        /** Pre-SPEC_V4 value for what is now [MemeCulture.GLOBAL]; read-only migration alias. */
-        private const val LEGACY_VAL_GENERIC = "generic"
     }
 }
 

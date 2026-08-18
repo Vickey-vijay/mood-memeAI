@@ -35,6 +35,9 @@ class StickerManagerActivity : AppCompatActivity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private var pendingImportMood: Emotion? = null
+    // First onResume() fires right after onCreate()'s own loadLibrary() call - skip the
+    // reload there so a cold start doesn't read index.json twice back to back.
+    private var isFirstResume = true
 
     private val pickImages = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
@@ -61,6 +64,17 @@ class StickerManagerActivity : AppCompatActivity() {
         }
     }
 
+    /** Client bug fix companion: picks individual sticker files via SAF (see
+     *  [buildOpenDocumentIntent]) instead of the whole-folder-only tree picker. */
+    private val pickDocuments = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val uris = collectPickedUris(result.data)
+        val mood = pendingImportMood
+        pendingImportMood = null
+        if (uris.isNotEmpty() && mood != null) importGallery(uris, mood)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStickerManagerBinding.inflate(layoutInflater)
@@ -81,11 +95,18 @@ class StickerManagerActivity : AppCompatActivity() {
         }
         binding.btnImportFolder.setOnClickListener {
             if (library == null) { toastLoading(); return@setOnClickListener }
-            showImportFolderSheet(this) { useWhatsApp ->
+            showImportFolderSheet(this) { source ->
                 showMoodPickerDialog(this) { mood ->
                     pendingImportMood = mood
                     try {
-                        openTree.launch(buildOpenTreeIntent(if (useWhatsApp) WHATSAPP_STICKERS_URI else null))
+                        when (source) {
+                            ImportSource.PICK_FILES ->
+                                pickDocuments.launch(buildOpenDocumentIntent(WHATSAPP_STICKERS_URI))
+                            ImportSource.WHATSAPP_FOLDER ->
+                                openTree.launch(buildOpenTreeIntent(WHATSAPP_STICKERS_URI))
+                            ImportSource.OTHER_FOLDER ->
+                                openTree.launch(buildOpenTreeIntent(null))
+                        }
                     } catch (t: Throwable) {
                         Toast.makeText(this, R.string.import_folder_unavailable, Toast.LENGTH_SHORT).show()
                     }
@@ -98,6 +119,14 @@ class StickerManagerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (isFirstResume) {
+            isFirstResume = false
+        } else {
+            // Bulk move/delete in MoodStickersActivity writes straight to that screen's own
+            // StickerLibrary instance and its own disk index - reload ours so the mood grid
+            // and per-mood counts here reflect it when the user comes back.
+            loadLibrary()
+        }
         refresh()
     }
 

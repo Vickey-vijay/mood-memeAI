@@ -8,22 +8,18 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Random
 
 /**
- * SPEC_V3 A.3/A.6 online tier, generalised from a single provider to N (client
- * requirement: "i dont want to limit my application to tenor or gif whatever, i need all
- * kind of memes to be pulled to my application").
- *
  * Fans one scan out to every [MemeSource] whose [MemeSource.isAvailable] is true,
- * concurrently, each under its own [SOURCE_TIMEOUT_MS] budget so one slow/dead provider
- * can never stall the grid - a source that fails or times out is skipped silently, never
- * fails the whole fetch. Results are interleaved round-robin across sources before
- * dedupe/return: [MemeRelevance.filterRelevant]'s re-admission step downstream uses a
- * *stable* sort, so whichever source happened to dominate the front of a plain
- * concatenation would systematically win every re-admission tie; interleaving first
- * removes that bias and is also what gives the grid visible variety instead of
- * "20 GIPHY gifs followed by everything else". Finally deduped by URL and by provider id.
+ * concurrently, each under its own [SOURCE_TIMEOUT_MS] budget so one slow/dead provider can
+ * never stall the grid — a source that fails or times out is skipped silently, never fails
+ * the whole fetch. Every source (including [ImgflipSource] — MAJOR SIMPLIFICATION: its
+ * plain-English local meme catalogue is exactly what the new dynamic query already is, so
+ * the old actor-name/keyword special-casing is gone) gets the SAME dynamic query built by
+ * [MemeQueryBank.buildQuery] from the user's Setup "Meme style" choice. Results are
+ * interleaved round-robin across sources before dedupe/return, so the grid reads as a
+ * genuine mix instead of "20 GIPHY gifs followed by everything else".
  *
- * [StickerRepository] layers [MemeRelevance] and [RecentlyShownStore] on top of what this
- * returns, exactly as it did for the old single-provider path.
+ * [StickerRepository] layers [MemeRelevance]'s light junk filter and [RecentlyShownStore]
+ * anti-repeat on top of what this returns.
  */
 class MemeAggregator(
     private val sources: List<MemeSource> = DEFAULT_SOURCES
@@ -31,7 +27,6 @@ class MemeAggregator(
 
     suspend fun fetch(
         emotion: Emotion,
-        culture: MemeCulture,
         prefs: Prefs,
         limit: Int,
         random: Random
@@ -39,20 +34,13 @@ class MemeAggregator(
         val available = sources.filter { it.isAvailable(prefs) }
         if (available.isEmpty()) return@coroutineScope emptyList()
 
-        // A.3.1/A.3.2 - one random query + one random offset per scan, shared by every
-        // search-based source so a single scan reads as one coherent "pull" rather than N
-        // independent random picks (also preserves pre-aggregator behaviour exactly).
-        val pool = MemeQueryBank.queries(emotion, culture)
-        val searchQuery = if (pool.isNotEmpty()) pool[random.nextInt(pool.size)] else emotion.query
+        // One dynamic query + one random offset per scan, shared by every source, so a
+        // single scan reads as one coherent "pull" rather than N independent random picks.
+        val query = MemeQueryBank.buildQuery(emotion, prefs.memeCategory, prefs.memeCategoryCustom)
         val offset = random.nextInt(MAX_OFFSET + 1)
-        // Imgflip's catalogue is generic-English meme culture, not culture-flavoured - it
-        // gets the emotion's keyword stems instead of the actor-name query (see
-        // ImgflipSource's kdoc for why).
-        val keywordQuery = MemeQueryBank.keywords(emotion).joinToString(" ")
 
         val deferred = available.map { source ->
             async {
-                val query = if (source.id == ImgflipSource.ID) keywordQuery else searchQuery
                 withTimeoutOrNull(SOURCE_TIMEOUT_MS) {
                     try {
                         source.fetch(query, limit, offset, prefs)

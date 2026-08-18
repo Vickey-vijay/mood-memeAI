@@ -69,11 +69,10 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding = KeyboardViewBinding.inflate(layoutInflater)
         prefs = Prefs(this)
         // P0 stability: StickerRepository's constructor builds a StickerLibrary (full index
-        // load + legacy migration) and a MemeCache (index load), both real disk I/O. Doing
-        // that synchronously here would block onCreateInputView - the keyboard would visibly
-        // hitch every time it's shown. Build it on a background dispatcher instead; by the
-        // time a scan actually locks a mood (several camera frames later, see lockAndFetch)
-        // it has almost always already finished.
+        // load + legacy migration), real disk I/O. Doing that synchronously here would block
+        // onCreateInputView - the keyboard would visibly hitch every time it's shown. Build it
+        // on a background dispatcher instead; by the time a scan actually locks a mood
+        // (several camera frames later, see lockAndFetch) it has almost always already finished.
         stickerRepoDeferred = scope.async(Dispatchers.IO) {
             try { StickerRepository(this@MoodBoardService, prefs) } catch (t: Throwable) { null }
         }

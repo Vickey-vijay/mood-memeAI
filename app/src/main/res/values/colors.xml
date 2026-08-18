@@ -42,4 +42,8 @@
 
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
+
+    <!-- Multi-select mode tile overlay (client bug fix): translucent primary tint over a
+         selected sticker's tile. -->
+    <color name="kb_selection_overlay">#55A15D0A</color>
 </resources>

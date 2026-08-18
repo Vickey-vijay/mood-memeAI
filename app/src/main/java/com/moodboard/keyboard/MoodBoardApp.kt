@@ -29,6 +29,24 @@ class MoodBoardApp : Application() {
     override fun onCreate() {
         super.onCreate()
         installCrashLogger()
+        cleanupLegacyMemeCache()
+    }
+
+    /**
+     * MAJOR SIMPLIFICATION (client bug report, 2026-08-19): the app used to pre-fetch and
+     * cache memes to disk in the background ("I don't need you to download anything to
+     * local"). That background cache is gone; this is a one-time best-effort sweep to
+     * remove any `meme_cache/` directory left behind on a device that had the old build
+     * installed. Safe to run on every launch — once the directory is gone, [File.exists]
+     * makes this a cheap no-op.
+     */
+    private fun cleanupLegacyMemeCache() {
+        try {
+            val dir = File(filesDir, "meme_cache")
+            if (dir.exists()) dir.deleteRecursively()
+        } catch (t: Throwable) {
+            Log.w(TAG, "legacy meme cache cleanup failed", t)
+        }
     }
 
     private fun installCrashLogger() {
