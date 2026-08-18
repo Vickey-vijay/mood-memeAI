@@ -7,57 +7,73 @@
         <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
     </style>
 
-    <!-- Primary / hero action: the one dominant CTA on a screen. Saffron fill, full pill,
-         generous height - this should visually outrank every other control around it. -->
-    <style name="SetupButton">
+    <!--
+      These three MUST inherit from Widget.Material3.Button.*.
+
+      Under Theme.Material3 a plain <Button> is inflated as MaterialButton, and
+      MaterialButton IGNORES android:background (it owns its own background so it can draw
+      ripple, elevation and shape). A style that sets android:background therefore silently
+      loses it and falls back to the default filled look tinted with colorPrimary. That is
+      exactly what shipped: secondary buttons rendered saffron-on-saffron and their labels
+      were invisible on the device even though the layouts set android:text correctly.
+
+      So: tint via backgroundTint, icons via app:icon/iconTint (not android:drawableStart,
+      which MaterialButton also re-lays-out differently), and shape via cornerRadius.
+    -->
+
+    <!-- Primary / hero action: the one dominant CTA on a screen. -->
+    <style name="SetupButton" parent="Widget.Material3.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">10dp</item>
-        <item name="android:background">@drawable/mood_btn_bg</item>
+        <item name="backgroundTint">@color/md_primary</item>
         <item name="android:textColor">@color/md_on_primary</item>
+        <item name="iconTint">@color/md_on_primary</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">10dp</item>
+        <item name="cornerRadius">20dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
         <item name="android:paddingTop">14dp</item>
         <item name="android:paddingBottom">14dp</item>
-        <item name="android:paddingStart">20dp</item>
-        <item name="android:paddingEnd">20dp</item>
-        <item name="android:drawableTint">@color/md_on_primary</item>
-        <item name="android:drawablePadding">10dp</item>
     </style>
 
-    <!-- Secondary action: quiet tonal button. Same family as SetupButton but visually demoted
-         so it never competes with the real hero action on the same screen. -->
-    <style name="SetupButtonSecondary">
+    <!-- Secondary action: quiet tonal button, deliberately demoted so it never competes
+         with the hero action on the same screen. -->
+    <style name="SetupButtonSecondary" parent="Widget.Material3.Button.TonalButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">8dp</item>
-        <item name="android:background">@drawable/btn_secondary_bg</item>
+        <item name="backgroundTint">@color/md_surface_container_high</item>
         <item name="android:textColor">@color/kb_accent</item>
+        <item name="iconTint">@color/kb_accent</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeColor">@color/md_outline_variant</item>
+        <item name="strokeWidth">1dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
         <item name="android:paddingTop">11dp</item>
         <item name="android:paddingBottom">11dp</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:drawableTint">@color/kb_accent</item>
-        <item name="android:drawablePadding">8dp</item>
     </style>
 
     <!-- Destructive / stop action: coral outline, used sparingly. -->
-    <style name="SetupButtonDestructive">
+    <style name="SetupButtonDestructive" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">8dp</item>
-        <item name="android:background">@drawable/btn_destructive_outline_bg</item>
         <item name="android:textColor">@color/md_error</item>
+        <item name="iconTint">@color/md_error</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">8dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="strokeColor">@color/md_error</item>
+        <item name="strokeWidth">1dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
         <item name="android:paddingTop">11dp</item>
         <item name="android:paddingBottom">11dp</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:drawableTint">@color/md_error</item>
-        <item name="android:drawablePadding">8dp</item>
     </style>
 
     <style name="SetupInput">

@@ -48,7 +48,7 @@
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:maxLines="1"
             android:ellipsize="end"
-            android:text="@string/setup_intro" />
+            android:text="@string/kb_status_idle" />
 
         <!-- The mood button is the hero affordance of the keyboard: full-round saffron pill,
              clearly bigger than every neighbouring control. -->
@@ -57,16 +57,18 @@
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:minWidth="0dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@drawable/mood_btn_bg"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/md_primary"
+            app:cornerRadius="18dp"
             android:textColor="@color/md_on_primary"
             android:textAllCaps="false"
             android:textAppearance="?attr/textAppearanceLabelMedium"
             android:textStyle="bold"
-            android:drawableStart="@drawable/ic_mood"
-            android:drawableTint="@color/md_on_primary"
-            android:drawablePadding="6dp"
+            app:icon="@drawable/ic_mood"
+            app:iconTint="@color/md_on_primary"
+            app:iconSize="18dp"
+            app:iconPadding="6dp"
             android:contentDescription="@string/cd_mood"
             android:text="@string/btn_mood_label" />
     </LinearLayout>

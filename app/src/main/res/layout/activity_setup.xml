@@ -23,15 +23,6 @@
             android:textAppearance="?attr/textAppearanceHeadlineSmall"
             android:lineSpacingMultiplier="1.0" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/setup_intro"
-            android:textColor="@color/kb_text_muted"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:lineSpacingMultiplier="1.15" />
-
         <!-- Hero card: the one thing this screen needs you to do. Bigger radius, saffron
              outline, most padding - deliberately the loudest surface here. -->
         <LinearLayout style="@style/SetupCardHero">
@@ -46,42 +37,14 @@
                 android:id="@+id/btnEnable"
                 style="@style/SetupButton"
                 android:layout_marginTop="12dp"
-                android:drawableStart="@drawable/ic_settings"
+                app:icon="@drawable/ic_settings"
                 android:text="@string/btn_enable" />
 
-            <TextView style="@style/SetupCardBody" android:text="@string/step2" />
             <Button
                 android:id="@+id/btnSwitch"
                 style="@style/SetupButtonSecondary"
-                android:drawableStart="@drawable/ic_keyboard"
+                app:icon="@drawable/ic_keyboard"
                 android:text="@string/btn_switch" />
-        </LinearLayout>
-
-        <!-- Confirmation chip, not a full-width banner - a quiet reassurance, not another box. -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/chip_pill_bg"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingEnd="14dp"
-            android:paddingTop="7dp"
-            android:paddingBottom="7dp">
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_marginEnd="6dp"
-                android:src="@drawable/ic_check"
-                android:contentDescription="@null"
-                app:tint="@color/md_success" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/setup_ready"
-                android:textColor="@color/md_success"
-                android:textAppearance="?attr/textAppearanceLabelMedium" />
         </LinearLayout>
 
         <!-- Library section - a header + a single quiet action, not a redundant card. -->
@@ -92,7 +55,7 @@
             android:id="@+id/btnManageStickers"
             style="@style/SetupButtonSecondary"
             android:layout_marginTop="12dp"
-            android:drawableStart="@drawable/ic_stickers"
+            app:icon="@drawable/ic_stickers"
             android:text="@string/btn_manage_stickers" />
 
         <!-- Accuracy section - calibration + the diagnostic lab live together, grouped by
@@ -112,13 +75,13 @@
         <Button
             android:id="@+id/btnCalibrate"
             style="@style/SetupButtonSecondary"
-            android:drawableStart="@drawable/ic_calibrate"
+            app:icon="@drawable/ic_calibrate"
             android:text="@string/btn_calibrate" />
 
         <Button
             android:id="@+id/btnEmotionLab"
             style="@style/SetupButtonSecondary"
-            android:drawableStart="@drawable/ic_lab"
+            app:icon="@drawable/ic_lab"
             android:text="@string/btn_emotion_lab" />
 
         <!-- Advanced - meme sources, pre-caching and the floating button are configuration,
@@ -172,6 +135,23 @@
             </LinearLayout>
 
             <TextView style="@style/SetupCardBody" android:text="@string/meme_sources_card_explain" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/meme_culture_label"
+                android:textColor="@color/kb_text"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+            <Spinner
+                android:id="@+id/spinnerMemeCulture"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/tile_bg"
+                android:padding="12dp"
+                android:spinnerMode="dropdown" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -280,7 +260,7 @@
             <Button
                 android:id="@+id/btnSaveTenorKey"
                 style="@style/SetupButtonSecondary"
-                android:drawableStart="@drawable/ic_check"
+                app:icon="@drawable/ic_check"
                 android:text="@string/btn_save_tenor_key" />
 
             <View style="@style/SetupDivider" android:layout_marginTop="18dp" />
@@ -345,7 +325,7 @@
                 android:id="@+id/btnRefreshMemeCache"
                 style="@style/SetupButtonSecondary"
                 android:layout_marginTop="12dp"
-                android:drawableStart="@drawable/ic_refresh"
+                app:icon="@drawable/ic_refresh"
                 android:text="@string/btn_refresh_meme_cache" />
 
             <View style="@style/SetupDivider" android:layout_marginTop="18dp" />
@@ -373,13 +353,13 @@
             <Button
                 android:id="@+id/btnOverlayStart"
                 style="@style/SetupButtonSecondary"
-                android:drawableStart="@drawable/ic_bubble"
+                app:icon="@drawable/ic_bubble"
                 android:text="@string/btn_overlay_start" />
 
             <Button
                 android:id="@+id/btnOverlayStop"
                 style="@style/SetupButtonDestructive"
-                android:drawableStart="@drawable/ic_close"
+                app:icon="@drawable/ic_close"
                 android:text="@string/btn_overlay_stop" />
         </LinearLayout>
     </LinearLayout>

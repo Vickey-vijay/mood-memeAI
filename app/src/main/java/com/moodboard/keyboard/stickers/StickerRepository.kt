@@ -23,8 +23,8 @@ import java.util.Random
  *   3. Online: every available [MemeSource] fetched concurrently via [aggregator]
  *      (provider-aggregator architecture - client requirement: "i dont want to limit my
  *      application to tenor or gif whatever, i need all kind of memes to be pulled to my
- *      application"), South Indian query pool (R2) first, falling back to the GENERIC
- *      pool if that yields nothing usable.
+ *      application"), the user's chosen regional [MemeCulture] query pool first (default
+ *      TAMIL - SPEC_V4), falling back to the GLOBAL pool if that yields nothing usable.
  *   4. Emoji fallback - handled by the caller when [search] returns an empty/failed result.
  *
  * A.4 relevance filtering and A.5 anti-repeat are applied to tiers 2+3 only.
@@ -130,12 +130,12 @@ class StickerRepository(
         return unseen
     }
 
-    /** A.6.3 - South Indian pool first, GENERIC pool if that yields nothing usable. */
+    /** A.6.3 - user's chosen regional pool first, GLOBAL pool if that yields nothing usable. */
     private suspend fun fetchOnline(emotion: Emotion, limit: Int): List<StickerItem> = try {
         val primaryCulture = prefs.memeCulture
         var raw = aggregator.fetch(emotion, primaryCulture, prefs, limit, random)
-        if (raw.isEmpty() && primaryCulture == MemeCulture.SOUTH_INDIAN) {
-            raw = aggregator.fetch(emotion, MemeCulture.GENERIC, prefs, limit, random)
+        if (raw.isEmpty() && primaryCulture != MemeCulture.GLOBAL) {
+            raw = aggregator.fetch(emotion, MemeCulture.GLOBAL, prefs, limit, random)
         }
         raw
     } catch (t: Throwable) {

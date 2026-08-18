@@ -322,7 +322,9 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.btnBackToKeys.visibility = View.GONE
         binding.attributionText.visibility = View.GONE
         binding.btnMood.text = getString(R.string.btn_mood_label)
-        updateStatus(getString(R.string.setup_intro))
+        // Short idle prompt — the toolbar is one ellipsised line, so the long marketing
+        // intro rendered as truncated garbage here.
+        updateStatus(getString(R.string.kb_status_idle))
     }
 
     private fun openSettings() {

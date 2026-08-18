@@ -26,7 +26,7 @@
             style="@style/SetupButtonSecondary"
             android:layout_width="wrap_content"
             android:layout_marginTop="0dp"
-            android:drawableStart="@drawable/ic_folder"
+            app:icon="@drawable/ic_folder"
             android:text="@string/btn_import_folder_short" />
     </LinearLayout>
 

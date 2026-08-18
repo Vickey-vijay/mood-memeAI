@@ -4,18 +4,10 @@
     <string name="manage_stickers">My Stickers</string>
 
     <string name="setup_title">Welcome to MoodBoard</string>
-    <string name="setup_intro">A keyboard that reads your face and hands you the perfect reaction - scan your mood, pick a sticker, send it in one tap.</string>
     <string name="step1">Turn MoodBoard on</string>
-    <string name="step2">Then make it your active keyboard</string>
-    <string name="step3">3. (Optional) Add your API keys for emotion + stickers</string>
     <string name="btn_enable">Enable keyboard</string>
     <string name="btn_switch">Choose keyboard</string>
-    <string name="btn_save_keys">Save keys</string>
     <string name="btn_manage_stickers">Manage my stickers</string>
-    <string name="hint_nvidia">NVIDIA NIM API key (emotion)</string>
-    <string name="hint_giphy">GIPHY / Tenor API key (stickers)</string>
-    <string name="keys_saved">Saved.</string>
-    <string name="setup_ready">You\'re all set - no keys to paste in, just enable MoodBoard above and start typing.</string>
     <string name="section_library">Your library</string>
     <string name="section_accuracy">Face &amp; mood accuracy</string>
     <string name="section_advanced">Advanced</string>
@@ -28,10 +20,10 @@
     <string name="btn_import_gallery">Import from gallery</string>
     <string name="btn_import_folder">Import a folder</string>
     <string name="btn_import_folder_short">Import folder</string>
-    <string name="mood_empty_state">Nothing here yet.\n\nTap + to pull stickers from your gallery, use Import folder above, or share one into MoodBoard from any app.</string>
+    <string name="mood_empty_state">Nothing here yet — tap + to add stickers, or import a folder above.</string>
     <string name="pick_mood_title">Save to which mood?</string>
     <string name="import_folder_title">Import stickers from a folder</string>
-    <string name="import_folder_explanation">WhatsApp keeps its sticker storage private, so no app - including this one - can read it directly. Here\'s what does work: pick WhatsApp\'s received-stickers folder below (Android\'s file picker can reach it), or choose any other folder on your device.</string>
+    <string name="import_folder_explanation">WhatsApp keeps its stickers private, so pick its received-stickers folder below, or choose any other folder on your device.</string>
     <string name="btn_import_whatsapp">Import WhatsApp stickers</string>
     <string name="btn_import_other_folder">Choose a different folder</string>
     <string name="imported_count">Imported %1$d sticker(s)</string>
@@ -59,6 +51,9 @@
     <string name="mood_result_status">Mood: %1$s %2$s · tap to send · long-press to save</string>
 
     <!-- Keyboard UI -->
+    <!-- Idle status shown in the keyboard toolbar before a scan. Must stay short: the
+         toolbar is a single ellipsised line, so anything longer reads as truncated text. -->
+    <string name="kb_status_idle">Tap Mood to scan your face</string>
     <string name="btn_mood_label">Mood</string>
     <string name="btn_mood_use">Use mood</string>
     <string name="cd_mood">Scan mood</string>
@@ -78,7 +73,7 @@
     <!-- Emotion Engine v2: calibration -->
     <string name="calibrate_nudge">Let\'s learn your neutral face for sharper reads — tap ⚙</string>
     <string name="calibration_title">Learn your neutral face</string>
-    <string name="calibration_intro">Relax your expression and hold still for three seconds. This gives MoodBoard a baseline so it can read you accurately.</string>
+    <string name="calibration_intro">Relax your face and hold still for three seconds.</string>
     <string name="calibration_relax">Relax your face…</string>
     <string name="calibration_hold_still">Hold still…</string>
     <string name="calibration_success">Got it - your neutral face is saved.</string>
@@ -97,7 +92,7 @@
     <string name="emotion_lab_title">Emotion Lab</string>
     <string name="lab_calibrated">Calibrated on %1$s</string>
     <string name="lab_uncalibrated">Not calibrated yet</string>
-    <string name="lab_au_header">Action units</string>
+    <string name="lab_au_header">Facial signals</string>
 
     <!-- SPEC_V3 A.7 (multi-source): attribution, shown only when online results are present -->
     <string name="attribution_powered_by">Powered by %1$s</string>
@@ -108,7 +103,7 @@
 
     <!-- Provider-aggregator architecture: "Meme sources" Setup card -->
     <string name="meme_sources_card_title">Meme sources</string>
-    <string name="meme_sources_card_explain">MoodBoard blends memes from a few sources at once so the grid stays varied. Turn any of them off, or add your own Tenor key for even more choice.</string>
+    <string name="meme_sources_card_explain">Blends memes from a few sources for variety — turn any off, or add your own Tenor key for more choice.</string>
     <string name="source_label_giphy_gifs">GIPHY GIFs</string>
     <string name="source_label_giphy_stickers">GIPHY stickers</string>
     <string name="source_label_giphy_trending">GIPHY trending</string>
@@ -118,6 +113,17 @@
     <string name="btn_save_tenor_key">Save Tenor key</string>
     <string name="tenor_key_saved">Tenor key saved</string>
     <string name="tenor_key_cleared">Tenor key cleared — Tenor turned off</string>
+
+    <!-- SPEC_V4 — Meme region selector, defaults to Tamil (client bug report) -->
+    <string name="meme_culture_label">Meme region</string>
+    <string-array name="meme_culture_options">
+        <item>Tamil</item>
+        <item>Telugu</item>
+        <item>Malayalam</item>
+        <item>Kannada</item>
+        <item>All South Indian</item>
+        <item>Global</item>
+    </string-array>
 
     <!-- SPEC_V3 B — meme pre-cache card -->
     <string name="meme_cache_card_title">Meme cache</string>
@@ -131,7 +137,7 @@
 
     <!-- SPEC_V3 C — floating overlay bubble -->
     <string name="overlay_card_title">Floating meme button</string>
-    <string name="overlay_card_explain">A draggable bubble that floats over any app - tap it to scan your face and grab a meme without switching keyboards. Since an overlay can\'t type into another app\'s text box, the meme lands on your clipboard (long-press the chat box → Paste) or opens the share sheet instead.</string>
+    <string name="overlay_card_explain">A draggable bubble that floats over any app — scan your mood and copy a meme, ready to paste in.</string>
     <string name="overlay_state_needs_permission">Needs \"display over other apps\" permission</string>
     <string name="overlay_state_running">Running - the bubble is on screen</string>
     <string name="overlay_state_stopped">Not running</string>

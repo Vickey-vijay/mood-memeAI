@@ -15,9 +15,12 @@ import com.moodboard.keyboard.stickers.GiphyStickersSource
 import com.moodboard.keyboard.stickers.GiphyTrendingSource
 import com.moodboard.keyboard.stickers.ImgflipSource
 import com.moodboard.keyboard.stickers.MemeCache
+import com.moodboard.keyboard.stickers.MemeCulture
 import com.moodboard.keyboard.stickers.MemePrefetchWorker
 import com.moodboard.keyboard.stickers.TenorSource
 import com.moodboard.keyboard.util.Prefs
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
@@ -90,6 +93,8 @@ class SetupActivity : AppCompatActivity() {
     private fun setUpMemeSourcesCard() {
         val prefs = Prefs(this)
 
+        setUpMemeCultureSpinner(prefs)
+
         binding.switchSourceGiphyGifs.isChecked = prefs.isMemeSourceEnabled(GiphyGifsSource.ID)
         binding.switchSourceGiphyStickers.isChecked = prefs.isMemeSourceEnabled(GiphyStickersSource.ID)
         binding.switchSourceGiphyTrending.isChecked = prefs.isMemeSourceEnabled(GiphyTrendingSource.ID)
@@ -118,6 +123,27 @@ class SetupActivity : AppCompatActivity() {
             prefs.tenorApiKey = key
             val messageRes = if (key.isBlank()) R.string.tenor_key_cleared else R.string.tenor_key_saved
             android.widget.Toast.makeText(this, messageRes, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * "Meme region" selector (SPEC_V4). Item order in [R.array.meme_culture_options]
+     * (Tamil, Telugu, Malayalam, Kannada, All South Indian, Global) MUST stay in sync with
+     * [MemeCulture]'s declaration order - the spinner maps position <-> enum by ordinal.
+     */
+    private fun setUpMemeCultureSpinner(prefs: Prefs) {
+        val cultures = MemeCulture.values()
+        val adapter = ArrayAdapter.createFromResource(
+            this, R.array.meme_culture_options, android.R.layout.simple_spinner_item
+        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        binding.spinnerMemeCulture.adapter = adapter
+        binding.spinnerMemeCulture.setSelection(prefs.memeCulture.ordinal, false)
+
+        binding.spinnerMemeCulture.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                cultures.getOrNull(position)?.let { prefs.memeCulture = it }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 

@@ -13,8 +13,9 @@ import java.util.Random
 /**
  * SPEC_V3 B.3 — periodic (every 12h) background pre-cache. Resolves the prefetch
  * target list from [Prefs.moodUsageCounts] (top 10 by usage, falling back to
- * [DEFAULT_TARGETS] until usage data exists), fetches ~10 South Indian-pack items per
- * emotion through [MemeAggregator] - the same multi-source fan-out the live search uses,
+ * [DEFAULT_TARGETS] until usage data exists), fetches ~10 items per emotion in the user's
+ * chosen [com.moodboard.keyboard.stickers.MemeCulture] (default TAMIL - SPEC_V4) through
+ * [MemeAggregator] - the same multi-source fan-out the live search uses,
  * so the cache holds a mix of sources rather than just whichever single provider used to
  * be configured (A.2/A.4 relevance) - downloads the bytes, and inserts them into
  * [MemeCache] tagged with their originating [MemeSource.id] so pre-cached items get
@@ -88,11 +89,14 @@ class MemePrefetchWorker(
 
     /** Fetches (via the aggregator), filters and caches up to [ITEMS_PER_EMOTION] items for [emotion]. Returns count inserted. */
     private suspend fun prefetchEmotion(emotion: Emotion, prefs: Prefs, cache: MemeCache): Int {
-        val candidates = aggregator.fetch(emotion, MemeCulture.SOUTH_INDIAN, prefs, QUERY_FETCH_LIMIT, random)
+        // SPEC_V4 - pre-cache the user's actual chosen culture (default TAMIL), not a
+        // hardcoded pack, so the cache matches what live search will show.
+        val culture = prefs.memeCulture
+        val candidates = aggregator.fetch(emotion, culture, prefs, QUERY_FETCH_LIMIT, random)
         if (candidates.isEmpty()) return 0
 
         val relevant = MemeRelevance.filterRelevant(
-            candidates, { it.rawText }, emotion, MemeCulture.SOUTH_INDIAN
+            candidates, { it.rawText }, emotion, culture
         )
 
         var inserted = 0

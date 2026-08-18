@@ -77,15 +77,40 @@ class Prefs(context: Context) {
         sp.edit().putBoolean(KEY_SOURCE_ENABLED_PREFIX + sourceId, enabled).apply()
     }
 
-    /** Which meme culture pack to search first (SPEC_V3 A.2). Default South Indian (R2). */
+    /**
+     * Which meme culture pack to search first (SPEC_V3 A.2, narrowed in SPEC_V4 to a
+     * default of TAMIL after a client bug report: "the whole meme world is around Telugu
+     * ... I'm in TAMIL NADU, not Telugu states"). Default TAMIL.
+     *
+     * Migration: pre-SPEC_V4 builds stored either `"south_indian"` or `"generic"` here.
+     * `"south_indian"` (a mixed Tamil+Telugu+Malayalam+Kannada pool) has no direct
+     * SPEC_V4 equivalent and is exactly the thing the client complained about, so it
+     * migrates to the new TAMIL default on read, same as an unset/unrecognised value.
+     * `"generic"` maps to the renamed [MemeCulture.GLOBAL].
+     */
     var memeCulture: MemeCulture
-        get() = if (sp.getString(KEY_MEME_CULTURE, VAL_SOUTH_INDIAN) == VAL_GENERIC) {
-            MemeCulture.GENERIC
-        } else {
-            MemeCulture.SOUTH_INDIAN
+        get() = when (sp.getString(KEY_MEME_CULTURE, VAL_TAMIL)) {
+            VAL_TELUGU -> MemeCulture.TELUGU
+            VAL_MALAYALAM -> MemeCulture.MALAYALAM
+            VAL_KANNADA -> MemeCulture.KANNADA
+            VAL_ALL_SOUTH_INDIAN -> MemeCulture.ALL_SOUTH_INDIAN
+            VAL_GLOBAL, LEGACY_VAL_GENERIC -> MemeCulture.GLOBAL
+            // Covers VAL_TAMIL, the legacy "south_indian" value, and anything else -
+            // TAMIL is the SPEC_V4 default for both new and upgrading users.
+            else -> MemeCulture.TAMIL
         }
         set(v) = sp.edit()
-            .putString(KEY_MEME_CULTURE, if (v == MemeCulture.GENERIC) VAL_GENERIC else VAL_SOUTH_INDIAN)
+            .putString(
+                KEY_MEME_CULTURE,
+                when (v) {
+                    MemeCulture.TAMIL -> VAL_TAMIL
+                    MemeCulture.TELUGU -> VAL_TELUGU
+                    MemeCulture.MALAYALAM -> VAL_MALAYALAM
+                    MemeCulture.KANNADA -> VAL_KANNADA
+                    MemeCulture.ALL_SOUTH_INDIAN -> VAL_ALL_SOUTH_INDIAN
+                    MemeCulture.GLOBAL -> VAL_GLOBAL
+                }
+            )
             .apply()
 
     /** Backing JSON store for [com.moodboard.keyboard.stickers.RecentlyShownStore] (SPEC_V3 A.5). */
@@ -178,8 +203,14 @@ class Prefs(context: Context) {
         private const val KEY_BUBBLE_X = "overlay_bubble_x"
         private const val KEY_BUBBLE_Y = "overlay_bubble_y"
         private const val KEY_OVERLAY_ENABLED = "overlay_bubble_enabled"
-        private const val VAL_SOUTH_INDIAN = "south_indian"
-        private const val VAL_GENERIC = "generic"
+        private const val VAL_TAMIL = "tamil"
+        private const val VAL_TELUGU = "telugu"
+        private const val VAL_MALAYALAM = "malayalam"
+        private const val VAL_KANNADA = "kannada"
+        private const val VAL_ALL_SOUTH_INDIAN = "all_south_indian"
+        private const val VAL_GLOBAL = "global"
+        /** Pre-SPEC_V4 value for what is now [MemeCulture.GLOBAL]; read-only migration alias. */
+        private const val LEGACY_VAL_GENERIC = "generic"
     }
 }
 
