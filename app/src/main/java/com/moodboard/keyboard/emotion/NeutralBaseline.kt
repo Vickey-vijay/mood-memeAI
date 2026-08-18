@@ -78,29 +78,46 @@ sealed class CaptureResult {
  * session, independent of whether the baseline itself was accepted.
  */
 class NeutralBaselineCapture {
+    // addFrame() is called from the CameraX analysis thread while finish() runs on the
+    // main thread when the countdown ends. Without this lock, finish() iterated the list
+    // as the camera was still appending to it and threw ConcurrentModificationException,
+    // crashing calibration outright (seen in the field via crash_log.txt).
+    private val lock = Any()
     private val framesWithFace = ArrayList<Map<String, Float>>()
     private var totalFrames = 0
     private var maxTongueOut = 0f
 
     fun addFrame(hasFace: Boolean, blendshapes: Map<String, Float>?) {
-        totalFrames++
-        if (hasFace && blendshapes != null) {
-            framesWithFace.add(blendshapes)
-            val tongue = blendshapes["tongueOut"] ?: 0f
-            if (tongue > maxTongueOut) maxTongueOut = tongue
+        synchronized(lock) {
+            totalFrames++
+            if (hasFace && blendshapes != null) {
+                framesWithFace.add(blendshapes)
+                val tongue = blendshapes["tongueOut"] ?: 0f
+                if (tongue > maxTongueOut) maxTongueOut = tongue
+            }
         }
     }
 
     fun tongueSupported(): Boolean = maxTongueOut > TONGUE_PROBE_THRESHOLD
 
     fun finish(reasonOnFailure: String): CaptureResult {
-        if (totalFrames == 0) return CaptureResult.Failure(reasonOnFailure)
-        val presence = framesWithFace.size.toFloat() / totalFrames
+        // Snapshot under the lock, then compute off it. The camera thread may still be
+        // delivering frames while this runs; iterating the live list threw
+        // ConcurrentModificationException and crashed the calibration screen.
+        val frames: List<Map<String, Float>>
+        val total: Int
+        synchronized(lock) {
+            frames = ArrayList(framesWithFace)
+            total = totalFrames
+        }
+
+        if (total == 0) return CaptureResult.Failure(reasonOnFailure)
+        val presence = frames.size.toFloat() / total
         if (presence < 0.70f) return CaptureResult.Failure(reasonOnFailure)
 
         val medians = HashMap<String, Float>()
         for (name in ActionUnits.BLENDSHAPE_NAMES) {
-            medians[name] = NeutralBaseline.medianOf(framesWithFace.map { it[name] ?: 0f })
+            medians[name] = NeutralBaseline.medianOf(frames.map { it[name] ?: 0f })
         }
 
         val stabilityKeys = listOf(
@@ -108,7 +125,7 @@ class NeutralBaselineCapture {
         )
         for (key in stabilityKeys) {
             val med = medians[key] ?: 0f
-            val mad = NeutralBaseline.medianOf(framesWithFace.map { abs((it[key] ?: 0f) - med) })
+            val mad = NeutralBaseline.medianOf(frames.map { abs((it[key] ?: 0f) - med) })
             if (mad >= 0.15f) return CaptureResult.Failure(reasonOnFailure)
         }
 

@@ -76,6 +76,44 @@
         <item name="android:paddingBottom">11dp</item>
     </style>
 
+    <!--
+      Plain-Button equivalents for surfaces that are NOT Activities.
+
+      The Setup* styles above inherit Widget.Material3.Button.*, which only works where the
+      inflation context carries a Material3 theme — i.e. inside an Activity. An
+      InputMethodService and a WindowManager overlay do NOT: there a <Button> stays a plain
+      android.widget.Button, which silently ignores app:backgroundTint, app:cornerRadius and
+      app:icon. Using the Setup* styles there produced an unstyled grey rectangle with no
+      icon (seen on-device on the keyboard's Mood button).
+
+      So: keyboard_view.xml and overlay_panel.xml use these instead, styled purely with
+      android: attributes that a plain Button honours.
+    -->
+    <style name="KbButtonPrimary">
+        <item name="android:background">@drawable/mood_btn_bg</item>
+        <item name="android:textColor">@color/md_on_primary</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:drawableTint">@color/md_on_primary</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="KbButtonSecondary">
+        <item name="android:background">@drawable/btn_secondary_bg</item>
+        <item name="android:textColor">@color/kb_accent</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:drawableTint">@color/kb_accent</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
     <style name="SetupInput">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
