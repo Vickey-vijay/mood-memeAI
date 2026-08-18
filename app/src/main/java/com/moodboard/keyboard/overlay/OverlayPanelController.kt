@@ -23,8 +23,10 @@ import com.moodboard.keyboard.stickers.StickerItem
 import com.moodboard.keyboard.stickers.StickerRepository
 import com.moodboard.keyboard.util.Prefs
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -83,11 +85,21 @@ class OverlayPanelController(
 ) {
 
     private val prefs = Prefs(context)
-    private val repo = StickerRepository(context, prefs)
     private val insertion = OverlayInsertion(context)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val main = Handler(Looper.getMainLooper())
+
+    // P0 stability: StickerRepository's constructor does real disk I/O (StickerLibrary index
+    // load + legacy migration, MemeCache index load). OverlayPanelController is constructed
+    // from FloatingBubbleService.expand(), i.e. on the bubble's main thread during a user tap
+    // - building it synchronously would visibly hitch the panel opening. Deferred + built on
+    // Dispatchers.IO instead; resolved by the time lockAndFetch actually needs it in the
+    // overwhelming majority of cases (a full camera scan takes far longer).
+    private val repoDeferred: Deferred<StickerRepository?> = scope.async(Dispatchers.IO) {
+        try { StickerRepository(context, prefs) } catch (t: Throwable) { null }
+    }
+    @Volatile private var activeRepo: StickerRepository? = null
 
     private var camera: KeyboardCameraManager? = null
     @Volatile private var analyzer: EmotionAnalyzer? = null
@@ -242,6 +254,14 @@ class OverlayPanelController(
         status(context.getString(R.string.overlay_finding, emotion.label))
 
         scope.launch {
+            val repo = repoDeferred.await()
+            if (released) return@launch
+            if (repo == null) {
+                binding.overlayProgress.visibility = View.GONE
+                showEmojiFallback(emotion)
+                return@launch
+            }
+            activeRepo = repo
             val res = repo.search(
                 lastResult ?: EmotionResult(
                     hasFace = true,
@@ -288,17 +308,19 @@ class OverlayPanelController(
         status(context.getString(R.string.overlay_mood_emoji, emotion.label))
     }
 
-    /** SPEC_V3 A.7 — attribution shown only when online results actually contributed. */
+    /** SPEC_V3 A.7 (multi-source) — attribution shown only when online results actually contributed. */
     private fun updateAttribution() {
-        if (!repo.lastFetchHadOnlineResults) {
+        val repo = activeRepo
+        if (repo == null || !repo.lastFetchHadOnlineResults) {
             binding.overlayAttribution.visibility = View.GONE
             return
         }
-        binding.overlayAttribution.text = if (repo.lastFetchProvider == "tenor") {
-            context.getString(R.string.attribution_tenor)
-        } else {
-            context.getString(R.string.attribution_giphy)
+        val label = com.moodboard.keyboard.stickers.MemeAttribution.label(context, repo.lastFetchSources)
+        if (label.isEmpty()) {
+            binding.overlayAttribution.visibility = View.GONE
+            return
         }
+        binding.overlayAttribution.text = label
         binding.overlayAttribution.visibility = View.VISIBLE
     }
 

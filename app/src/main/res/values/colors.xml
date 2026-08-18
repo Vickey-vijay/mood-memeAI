@@ -1,35 +1,40 @@
 <resources>
-    <!-- Material 3 token set, dark-first (the keyboard/overlay UI is overwhelmingly seen
-         dark), keeping the existing violet brand hue. See values-night/colors.xml for the
-         system-dark-mode variant. -->
-    <color name="md_primary">#FF9C8CFF</color>
-    <color name="md_on_primary">#FF2B1F66</color>
-    <color name="md_primary_container">#FF483A99</color>
-    <color name="md_on_primary_container">#FFE4DEFF</color>
+    <!-- Warm design system, light (default/day) variant. Saffron-and-ink brand, paper/cream
+         surfaces - no violet anywhere. See values-night/colors.xml for the dark variant that
+         the keyboard and overlay are seen in most of the time. Primary is a deeper burnt-amber
+         here (not the brighter dark-mode saffron) so it still passes WCAG AA as text/icon
+         color on a light surface, not just as a button fill. -->
+    <color name="md_primary">#FFA15D0A</color>
+    <color name="md_primary_pressed">#FF8A4E08</color>
+    <color name="md_on_primary">#FFFFFBF3</color>
+    <color name="md_primary_container">#FFFBE4C0</color>
+    <color name="md_on_primary_container">#FF5A3400</color>
 
-    <color name="md_secondary">#FFC7C0DD</color>
-    <color name="md_on_secondary">#FF302B49</color>
+    <color name="md_secondary">#FF8A5A22</color>
+    <color name="md_on_secondary">#FFFFFBF3</color>
 
-    <color name="md_surface">#FF16181D</color>
-    <color name="md_on_surface">#FFE7E7EC</color>
-    <color name="md_surface_variant">#FF2B2F38</color>
-    <color name="md_on_surface_variant">#FFB9BEC9</color>
-    <color name="md_surface_container">#FF20232A</color>
-    <color name="md_surface_container_high">#FF2B2F38</color>
+    <color name="md_surface">#FFFBF7F0</color>
+    <color name="md_on_surface">#FF241C12</color>
+    <color name="md_surface_variant">#FFF0E6D6</color>
+    <color name="md_on_surface_variant">#FF6B5D4C</color>
+    <color name="md_surface_container">#FFF4EEE3</color>
+    <color name="md_surface_container_high">#FFECE1CE</color>
 
-    <color name="md_outline">#FF8A909C</color>
-    <color name="md_outline_variant">#FF3A3F4B</color>
+    <color name="md_outline">#FFA6957C</color>
+    <color name="md_outline_variant">#FFDED0BA</color>
 
-    <color name="md_error">#FFFF6B6B</color>
-    <color name="md_on_error">#FF2B0A0A</color>
+    <color name="md_error">#FFC22F35</color>
+    <color name="md_on_error">#FFFFFBF3</color>
 
-    <color name="md_success">#FF8FE39B</color>
+    <color name="md_success">#FF2F7526</color>
 
-    <!-- Legacy names kept as aliases so existing layouts/drawables keep working untouched. -->
+    <!-- Keyboard/overlay tokens - aliased to the tokens above so they resolve to the correct
+         light or dark value automatically. Only kb_key_pressed differs enough between modes
+         (warm-cream highlight vs warm-ember glow) that it needs its own literal per file. -->
     <color name="kb_background">@color/md_surface</color>
     <color name="kb_key">@color/md_surface_variant</color>
-    <color name="kb_key_special">#FF23262D</color>
-    <color name="kb_key_pressed">#FF4F5666</color>
+    <color name="kb_key_special">@color/md_surface_container_high</color>
+    <color name="kb_key_pressed">#FFF0CE93</color>
     <color name="kb_text">@color/md_on_surface</color>
     <color name="kb_accent">@color/md_primary</color>
     <color name="kb_toolbar">@color/md_surface_container</color>

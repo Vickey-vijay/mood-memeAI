@@ -1,0 +1,7 @@
+<!-- The one dominant card on a screen: bigger radius, saffron outline. Deliberately
+     different from card_bg so the primary action reads as more important at a glance. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/md_surface_container_high"/>
+    <corners android:radius="20dp"/>
+    <stroke android:width="1.5dp" android:color="@color/kb_accent"/>
+</shape>

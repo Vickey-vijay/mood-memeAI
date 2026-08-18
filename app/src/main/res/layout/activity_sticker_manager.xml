@@ -9,59 +9,60 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp"
+        android:paddingBottom="12dp">
 
         <TextView
             android:id="@+id/totalCountText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/kb_text"
-            android:textAppearance="?attr/textAppearanceTitleMedium" />
+            android:textAppearance="?attr/textAppearanceTitleLarge" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnImportGallery"
+                style="@style/SetupButtonSecondary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
-                android:background="@drawable/mood_btn_bg"
                 android:drawableStart="@drawable/ic_folder"
-                android:drawableTint="@color/white"
-                android:drawablePadding="6dp"
-                android:padding="10dp"
-                android:text="@string/btn_import_gallery"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:text="@string/btn_import_gallery" />
 
             <Button
                 android:id="@+id/btnImportFolder"
+                style="@style/SetupButtonSecondary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
-                android:background="@drawable/mood_btn_bg"
                 android:drawableStart="@drawable/ic_folder"
-                android:drawableTint="@color/white"
-                android:drawablePadding="6dp"
-                android:padding="10dp"
-                android:text="@string/btn_import_folder"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:text="@string/btn_import_folder" />
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:id="@+id/headerDivider"
+        style="@style/SetupDivider"
+        android:layout_below="@id/header"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/moodGrid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/header"
-        android:padding="6dp" />
+        android:layout_below="@id/headerDivider"
+        android:clipToPadding="false"
+        android:padding="10dp" />
 
     <ProgressBar
         android:id="@+id/progress"

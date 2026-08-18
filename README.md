@@ -51,7 +51,9 @@ offline and privately — camera frames are analysed in memory and never uploade
    a live emotion read-out (e.g. "Happy 78%").
 3. Hold a clear expression; once it is stable the keyboard locks the mood and loads
    matching stickers. (Or tap **Use mood** to lock the current reading immediately.)
-4. Tap a sticker and it is sent straight into the chat.
+4. Tap a sticker and it is sent straight into the chat. **Long-press a sticker**
+   instead to keep it — a mood picker (defaulting to the mood you just scanned)
+   appears, and it's saved into your own library for next time.
 
 Detected emotions: Happy, Laughing, Excited, Surprised, Shocked, Fearful, Sad,
 Angry, Annoyed, Frustrated, Disgust, Contempt, Skeptical, Sleepy, Kiss, Wink,
@@ -83,8 +85,16 @@ Three ways to get stickers in, including ones you already have in WhatsApp:
 Animated `.webp`/`.gif` stickers are copied byte-for-byte so they stay animated;
 large JPEG/PNG imports are downsized (long edge clamped to 512px). At mood-scan
 time your own stickers for the detected mood show first (favourites first), then
-the meme pre-cache for that mood (instant, no network), then online results, then
-an emoji fallback — so a populated library, or a warm cache, works fully offline.
+your stickers for the runner-up mood if that's thin, then — if the grid is
+*still* thin — your stickers from any mood, so a populated library is never
+invisible just because everything landed in one bucket; then the meme pre-cache
+for that mood (instant, no network), then online results, then an emoji
+fallback — so a populated library, or a warm cache, works fully offline.
+
+A sticker's mood only ever comes from an actual `Emotion` (the mood picker only
+offers real moods), and on every load `StickerLibrary` heals any entry that
+somehow ended up filed under something else by folding it onto Neutral, so
+nothing you've saved can become permanently unreachable.
 
 ### Online results — relevance, South Indian sourcing, anti-repeat (v3)
 Online sticker results are pulled from a per-emotion pool of queries rather than

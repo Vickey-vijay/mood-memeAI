@@ -1,0 +1,18 @@
+<!-- Outline-only coral treatment for destructive/stop actions - used sparingly, never as
+     the default button look. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/md_surface_variant"/>
+            <corners android:radius="12dp"/>
+            <stroke android:width="1.5dp" android:color="@color/md_error"/>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/>
+            <corners android:radius="12dp"/>
+            <stroke android:width="1.5dp" android:color="@color/md_error"/>
+        </shape>
+    </item>
+</selector>

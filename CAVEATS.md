@@ -82,9 +82,18 @@ declares it accepts images** (the Commit Content API).
      folder doesn't exist on a device the picker just opens at its default
      location — it never crashes.
   3. **Import from gallery**, for stickers already saved to photos.
-- Sticker retrieval order at scan time (SPEC_V2 B.5): your own stickers for the
-  detected mood (favourites first) → your own stickers for the runner-up mood if
-  you have fewer than 12 → GIPHY/Tenor, only if online and enabled in Settings.
+- Sticker retrieval order at scan time (SPEC_V2 B.5, extended by a client bug
+  fix): your own stickers for the detected mood (favourites first) → your own
+  stickers for the runner-up mood if you have fewer than 12 → your own stickers
+  from **any** mood if the grid is still thin, ranked below the first two → the
+  meme pre-cache → GIPHY/Tenor, only if online and enabled in Settings. The
+  "any mood" step exists specifically so a populated personal library can never
+  disappear from the grid just because every sticker you've saved happens to be
+  filed under one mood that isn't today's detected (or runner-up) mood.
+- **Long-press a sticker in the keyboard's result grid** (any tier — yours,
+  cached, or online) to save it into your own library on the spot, with the
+  mood picker defaulting to the mood you just scanned. This is how you keep a
+  meme you found while scanning, without leaving the keyboard.
 
 ## 5c. Floating meme button (overlay bubble) — what it can and can't do
 

@@ -1,28 +1,31 @@
 <resources>
-    <!-- System dark-mode variant. The app already defaults to a dark, violet-brand palette
-         (see values/colors.xml) because the keyboard/overlay are overwhelmingly used dark,
-         so this override keeps the same token values - it exists to satisfy the
-         Theme.Material3.DayNight contract explicitly rather than relying on values/ alone. -->
-    <color name="md_primary">#FF9C8CFF</color>
-    <color name="md_on_primary">#FF2B1F66</color>
-    <color name="md_primary_container">#FF483A99</color>
-    <color name="md_on_primary_container">#FFE4DEFF</color>
+    <!-- Warm design system, dark (night) variant - the keyboard and overlay are seen in this
+         mode the overwhelming majority of the time, so it gets the most contrast and polish.
+         Deep warm ink base (brown-black bias, not blue-grey) with a saffron/marigold primary
+         and a deep coral-red for emphasis and destructive actions. No violet anywhere. -->
+    <color name="md_primary">#FFF5A524</color>
+    <color name="md_primary_pressed">#FFE8912B</color>
+    <color name="md_on_primary">#FF2B1B00</color>
+    <color name="md_primary_container">#FF4A3313</color>
+    <color name="md_on_primary_container">#FFFFDCA3</color>
 
-    <color name="md_secondary">#FFC7C0DD</color>
-    <color name="md_on_secondary">#FF302B49</color>
+    <color name="md_secondary">#FFD9A15C</color>
+    <color name="md_on_secondary">#FF2B1B0A</color>
 
-    <color name="md_surface">#FF121317</color>
-    <color name="md_on_surface">#FFE7E7EC</color>
-    <color name="md_surface_variant">#FF2B2F38</color>
-    <color name="md_on_surface_variant">#FFB9BEC9</color>
-    <color name="md_surface_container">#FF1C1E24</color>
-    <color name="md_surface_container_high">#FF2B2F38</color>
+    <color name="md_surface">#FF14110F</color>
+    <color name="md_on_surface">#FFF5EFE7</color>
+    <color name="md_surface_variant">#FF2A231D</color>
+    <color name="md_on_surface_variant">#FFC9BDAE</color>
+    <color name="md_surface_container">#FF1C1815</color>
+    <color name="md_surface_container_high">#FF241F1B</color>
 
-    <color name="md_outline">#FF8A909C</color>
-    <color name="md_outline_variant">#FF3A3F4B</color>
+    <color name="md_outline">#FF8A7C6B</color>
+    <color name="md_outline_variant">#FF3A3128</color>
 
-    <color name="md_error">#FFFF6B6B</color>
-    <color name="md_on_error">#FF2B0A0A</color>
+    <color name="md_error">#FFE5484D</color>
+    <color name="md_on_error">#FFFFFFFF</color>
 
-    <color name="md_success">#FF8FE39B</color>
+    <color name="md_success">#FF82C46C</color>
+
+    <color name="kb_key_pressed">#FF4A3313</color>
 </resources>

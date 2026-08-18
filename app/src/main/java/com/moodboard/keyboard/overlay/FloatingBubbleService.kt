@@ -139,6 +139,50 @@ class FloatingBubbleService : Service() {
         }
     }
 
+    /**
+     * P0 crash fix. The bubble itself never touches the camera, so the service starts (and
+     * stays) `specialUse`-only until the panel is about to open the camera. On API 34+, a
+     * foreground service must currently be running with the `camera` FGS type - and the app
+     * must hold [Manifest.permission.CAMERA] at that exact moment - or the system throws
+     * `SecurityException` the instant CameraX/Camera2 is touched, killing the process. This
+     * elevates the running foreground service's declared type to include `camera` right
+     * before [expand] hands off to [OverlayPanelController], and only when the permission is
+     * actually held (otherwise the controller's own permission check short-circuits before
+     * any camera API is touched, so there is nothing to elevate for). [collapse] reverts to
+     * `specialUse`-only once scanning ends. Calling `startForeground` again on an already-
+     * foreground service is legal and simply updates its type/notification in place.
+     */
+    private fun goForegroundWithCameraIfPermitted() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        try {
+            ServiceCompat.startForeground(
+                this, NOTIF_ID, buildNotification(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
+            )
+        } catch (t: Throwable) {
+            // If this somehow fails, leave the type as-is; OverlayPanelController's own
+            // camera-permission and onError paths still keep camera failures non-fatal.
+        }
+    }
+
+    /** Reverts the foreground service type back to `specialUse`-only once scanning ends. */
+    private fun revertForegroundType() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+        try {
+            ServiceCompat.startForeground(
+                this, NOTIF_ID, buildNotification(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            )
+        } catch (t: Throwable) {
+            // Non-fatal - worst case the service keeps the camera type declared until it dies.
+        }
+    }
+
     private fun buildNotification(): Notification {
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
@@ -329,6 +373,10 @@ class FloatingBubbleService : Service() {
 
         bubbleBinding?.root?.visibility = View.GONE
 
+        // P0 crash fix: elevate the FGS type to include "camera" before the controller can
+        // possibly touch the camera. Must happen before controller.start(), not after.
+        goForegroundWithCameraIfPermitted()
+
         controller = OverlayPanelController(
             context = ContextThemeWrapper(this, R.style.Theme_MoodBoard),
             binding = binding,
@@ -365,6 +413,10 @@ class FloatingBubbleService : Service() {
         panelParams = null
 
         bubbleBinding?.root?.visibility = View.VISIBLE
+
+        // Scanning has ended (controller.release() already ran above) - drop the camera FGS
+        // type again so the service only ever claims it while actually in use.
+        revertForegroundType()
     }
 
     /** Toggles `FLAG_NOT_FOCUSABLE` on the live panel window (SPEC_V3 C.3). */

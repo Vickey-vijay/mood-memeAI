@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:layout_margin="6dp"
-        android:background="@drawable/mood_btn_bg"
+        android:background="@drawable/chip_pill_dark"
         android:minWidth="22dp"
         android:paddingStart="7dp"
         android:paddingEnd="7dp"

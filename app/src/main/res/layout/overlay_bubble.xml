@@ -4,6 +4,7 @@
   OnTouchListener.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bubbleRoot"
     android:layout_width="56dp"
     android:layout_height="56dp"
@@ -18,6 +19,6 @@
         android:background="@drawable/mood_btn_bg"
         android:padding="12dp"
         android:src="@drawable/ic_bubble"
-        android:tint="@color/white"
+        app:tint="@color/md_on_primary"
         android:contentDescription="@null" />
 </FrameLayout>

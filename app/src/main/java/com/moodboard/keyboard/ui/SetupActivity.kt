@@ -3,14 +3,20 @@ package com.moodboard.keyboard.ui
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.Constraints
 import com.moodboard.keyboard.R
 import com.moodboard.keyboard.databinding.ActivitySetupBinding
 import com.moodboard.keyboard.overlay.FloatingBubbleService
+import com.moodboard.keyboard.stickers.GiphyGifsSource
+import com.moodboard.keyboard.stickers.GiphyStickersSource
+import com.moodboard.keyboard.stickers.GiphyTrendingSource
+import com.moodboard.keyboard.stickers.ImgflipSource
 import com.moodboard.keyboard.stickers.MemeCache
 import com.moodboard.keyboard.stickers.MemePrefetchWorker
+import com.moodboard.keyboard.stickers.TenorSource
 import com.moodboard.keyboard.util.Prefs
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -30,9 +36,6 @@ class SetupActivity : AppCompatActivity() {
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Keys are baked in; make sure the sticker provider matches the built-in GIPHY key.
-        Prefs(this).provider = "giphy"
-
         binding.btnEnable.setOnClickListener {
             startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
         }
@@ -50,11 +53,28 @@ class SetupActivity : AppCompatActivity() {
             startActivity(Intent(this, EmotionLabActivity::class.java))
         }
 
+        setUpMemeSourcesCard()
         setUpOverlayCard()
         setUpMemeCacheCard()
+        setUpAdvancedSection()
         // SPEC_V3 B.3 - enqueue the periodic prefetch worker. KEEP so re-visiting Setup
         // never resets an already-scheduled run.
         enqueuePeriodicPrefetch(ExistingPeriodicWorkPolicy.KEEP)
+    }
+
+    // ---------------- Presentation: collapsible "Advanced" section ----------------
+
+    /** Purely visual grouping - meme sources / cache / floating button start collapsed so
+     *  the setup screen isn't a wall of identical cards. No effect on any of their behaviour. */
+    private fun setUpAdvancedSection() {
+        binding.advancedHeader.setOnClickListener {
+            val expanding = binding.advancedContent.visibility != View.VISIBLE
+            binding.advancedContent.visibility = if (expanding) View.VISIBLE else View.GONE
+            binding.advancedChevron.animate()
+                .rotation(if (expanding) 180f else 0f)
+                .setDuration(150)
+                .start()
+        }
     }
 
     override fun onResume() {
@@ -62,6 +82,43 @@ class SetupActivity : AppCompatActivity() {
         refreshCalibrationState()
         refreshMemeCacheStats()
         refreshOverlayState()
+    }
+
+    // ---------------- Provider-aggregator architecture — meme sources card ----------------
+
+    /** Per-source on/off switches plus the optional Tenor key field. */
+    private fun setUpMemeSourcesCard() {
+        val prefs = Prefs(this)
+
+        binding.switchSourceGiphyGifs.isChecked = prefs.isMemeSourceEnabled(GiphyGifsSource.ID)
+        binding.switchSourceGiphyStickers.isChecked = prefs.isMemeSourceEnabled(GiphyStickersSource.ID)
+        binding.switchSourceGiphyTrending.isChecked = prefs.isMemeSourceEnabled(GiphyTrendingSource.ID)
+        binding.switchSourceImgflip.isChecked = prefs.isMemeSourceEnabled(ImgflipSource.ID)
+        binding.switchSourceTenor.isChecked = prefs.isMemeSourceEnabled(TenorSource.ID)
+        binding.inputTenorKey.setText(prefs.tenorApiKey)
+
+        binding.switchSourceGiphyGifs.setOnCheckedChangeListener { _, checked ->
+            prefs.setMemeSourceEnabled(GiphyGifsSource.ID, checked)
+        }
+        binding.switchSourceGiphyStickers.setOnCheckedChangeListener { _, checked ->
+            prefs.setMemeSourceEnabled(GiphyStickersSource.ID, checked)
+        }
+        binding.switchSourceGiphyTrending.setOnCheckedChangeListener { _, checked ->
+            prefs.setMemeSourceEnabled(GiphyTrendingSource.ID, checked)
+        }
+        binding.switchSourceImgflip.setOnCheckedChangeListener { _, checked ->
+            prefs.setMemeSourceEnabled(ImgflipSource.ID, checked)
+        }
+        binding.switchSourceTenor.setOnCheckedChangeListener { _, checked ->
+            prefs.setMemeSourceEnabled(TenorSource.ID, checked)
+        }
+
+        binding.btnSaveTenorKey.setOnClickListener {
+            val key = binding.inputTenorKey.text?.toString().orEmpty()
+            prefs.tenorApiKey = key
+            val messageRes = if (key.isBlank()) R.string.tenor_key_cleared else R.string.tenor_key_saved
+            android.widget.Toast.makeText(this, messageRes, android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
     // ---------------- SPEC_V3 C.6 — floating meme button card ----------------

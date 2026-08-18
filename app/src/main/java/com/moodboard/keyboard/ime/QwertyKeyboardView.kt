@@ -148,8 +148,10 @@ class QwertyKeyboardView @JvmOverloads constructor(
     private fun newRow(): LinearLayout {
         val row = LinearLayout(context)
         row.orientation = HORIZONTAL
-        row.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, dp(48)).apply {
-            topMargin = dp(3)
+        // Comfortable sizing (D.1 keyboard-is-the-product pass): a touch taller and a touch
+        // more breathing room between keys than the original tight-packed rows.
+        row.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, dp(50)).apply {
+            topMargin = dp(4)
         }
         return row
     }
@@ -180,8 +182,8 @@ class QwertyKeyboardView @JvmOverloads constructor(
         b.minHeight = 0
         b.stateListAnimator = null
         val lp = LayoutParams(0, LayoutParams.MATCH_PARENT, weight)
-        lp.marginStart = dp(2)
-        lp.marginEnd = dp(2)
+        lp.marginStart = dp(3)
+        lp.marginEnd = dp(3)
         b.layoutParams = lp
         b.setOnClickListener { onClick() }
         return b
@@ -201,8 +203,8 @@ class QwertyKeyboardView @JvmOverloads constructor(
         b.minimumHeight = 0
         b.stateListAnimator = null
         val lp = LayoutParams(0, LayoutParams.MATCH_PARENT, weight)
-        lp.marginStart = dp(2)
-        lp.marginEnd = dp(2)
+        lp.marginStart = dp(3)
+        lp.marginEnd = dp(3)
         b.layoutParams = lp
         b.setOnClickListener { onClick() }
         return b

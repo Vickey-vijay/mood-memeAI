@@ -23,12 +23,15 @@ import com.moodboard.keyboard.stickers.EmojiAdapter
 import com.moodboard.keyboard.stickers.StickerAdapter
 import com.moodboard.keyboard.stickers.StickerItem
 import com.moodboard.keyboard.stickers.StickerRepository
+import com.moodboard.keyboard.ui.SaveStickerActivity
 import com.moodboard.keyboard.ui.SetupActivity
 import com.moodboard.keyboard.util.Prefs
 import com.moodboard.keyboard.util.RichContentSender
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -41,10 +44,13 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
 
     private lateinit var binding: KeyboardViewBinding
     private lateinit var prefs: Prefs
-    private lateinit var stickerRepo: StickerRepository
+    private lateinit var stickerRepoDeferred: Deferred<StickerRepository?>
     private lateinit var sender: RichContentSender
     private lateinit var stickerAdapter: StickerAdapter
     private lateinit var emojiAdapter: EmojiAdapter
+
+    /** Set once [stickerRepoDeferred] resolves, so [updateAttribution] can read it. */
+    @Volatile private var activeStickerRepo: StickerRepository? = null
 
     private var camera: KeyboardCameraManager? = null
     @Volatile private var analyzer: EmotionAnalyzer? = null
@@ -62,11 +68,22 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
     override fun onCreateInputView(): View {
         binding = KeyboardViewBinding.inflate(layoutInflater)
         prefs = Prefs(this)
-        stickerRepo = StickerRepository(this, prefs)
+        // P0 stability: StickerRepository's constructor builds a StickerLibrary (full index
+        // load + legacy migration) and a MemeCache (index load), both real disk I/O. Doing
+        // that synchronously here would block onCreateInputView - the keyboard would visibly
+        // hitch every time it's shown. Build it on a background dispatcher instead; by the
+        // time a scan actually locks a mood (several camera frames later, see lockAndFetch)
+        // it has almost always already finished.
+        stickerRepoDeferred = scope.async(Dispatchers.IO) {
+            try { StickerRepository(this@MoodBoardService, prefs) } catch (t: Throwable) { null }
+        }
         sender = RichContentSender(this)
         binding.qwerty.listener = this
 
-        stickerAdapter = StickerAdapter(onClick = { sendSticker(it) })
+        stickerAdapter = StickerAdapter(
+            onClick = { sendSticker(it) },
+            onLongClick = { saveSticker(it) }
+        )
         emojiAdapter = EmojiAdapter { emoji ->
             currentInputConnection?.commitText(emoji, 1)
             updateStatus("Inserted $emoji")
@@ -196,7 +213,14 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         updateStatus("Mood: ${emotion.label} ${emotion.emoji} · finding stickers…")
 
         scope.launch {
-            val res = stickerRepo.search(
+            val repo = stickerRepoDeferred.await()
+            if (repo == null) {
+                binding.progress.visibility = View.GONE
+                showEmojiFallback(emotion, "temporarily unavailable")
+                return@launch
+            }
+            activeStickerRepo = repo
+            val res = repo.search(
                 lastResult ?: EmotionResult(
                     hasFace = true,
                     emotion = emotion,
@@ -220,7 +244,7 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         binding.stickerGrid.layoutManager = GridLayoutManager(this, 3)
         binding.stickerGrid.adapter = stickerAdapter
         stickerAdapter.submit(list)
-        updateStatus("Mood: ${emotion.label} ${emotion.emoji} · tap a sticker")
+        updateStatus(getString(R.string.mood_result_status, emotion.label, emotion.emoji))
         binding.qwerty.visibility = View.GONE
         binding.cameraContainer.visibility = View.GONE
         binding.stickerGrid.visibility = View.VISIBLE
@@ -228,17 +252,19 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
         updateAttribution()
     }
 
-    /** SPEC_V3 A.7 - GIPHY/Tenor attribution, shown only when online results contributed. */
+    /** SPEC_V3 A.7 (multi-source) - attribution, shown only when online results contributed. */
     private fun updateAttribution() {
-        if (!stickerRepo.lastFetchHadOnlineResults) {
+        val repo = activeStickerRepo
+        if (repo == null || !repo.lastFetchHadOnlineResults) {
             binding.attributionText.visibility = View.GONE
             return
         }
-        binding.attributionText.text = if (stickerRepo.lastFetchProvider == "tenor") {
-            getString(R.string.attribution_tenor)
-        } else {
-            getString(R.string.attribution_giphy)
+        val label = com.moodboard.keyboard.stickers.MemeAttribution.label(this, repo.lastFetchSources)
+        if (label.isEmpty()) {
+            binding.attributionText.visibility = View.GONE
+            return
         }
+        binding.attributionText.text = label
         binding.attributionText.visibility = View.VISIBLE
     }
 
@@ -264,6 +290,23 @@ class MoodBoardService : InputMethodService(), QwertyKeyboardView.Listener {
                 is RichContentSender.SendResult.Error -> toast("Send failed: ${r.message}")
             }
         }
+    }
+
+    /**
+     * Required outcome 4 (client bug fix): long-press on any sticker in the result grid
+     * -> "Save to my stickers". The IME can't show a dialog itself, so this launches the
+     * transparent [SaveStickerActivity] (same pattern as [PermissionActivity]) with the
+     * sticker's data and the currently detected mood as the picker's default.
+     */
+    private fun saveSticker(item: StickerItem) {
+        val intent = Intent(this, SaveStickerActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            putExtra(SaveStickerActivity.EXTRA_SEND_URL, item.sendUrl)
+            putExtra(SaveStickerActivity.EXTRA_MIME, item.mime)
+            putExtra(SaveStickerActivity.EXTRA_IS_LOCAL, item.isLocal)
+            putExtra(SaveStickerActivity.EXTRA_DETECTED_MOOD, currentEmotion.key)
+        }
+        startActivity(intent)
     }
 
     // ---------------- View state ----------------

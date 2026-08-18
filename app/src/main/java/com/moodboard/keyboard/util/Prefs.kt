@@ -53,6 +53,30 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_PREFER_OWN_STICKERS, true)
         set(v) = sp.edit().putBoolean(KEY_PREFER_OWN_STICKERS, v).apply()
 
+    /**
+     * Optional user-supplied Tenor v2 API key, entered in the "Meme sources" Setup card.
+     * Separate from [stickerKey] (GIPHY's key, which ships with a working built-in
+     * default): Tenor v2 requires its own key with no usable public default, so
+     * [com.moodboard.keyboard.stickers.TenorSource.isAvailable] treats a blank value here
+     * as "source unavailable" and degrades silently rather than calling Tenor with an
+     * invalid key.
+     */
+    var tenorApiKey: String
+        get() = sp.getString(KEY_TENOR_API_KEY, "").orEmpty()
+        set(v) = sp.edit().putString(KEY_TENOR_API_KEY, v.trim()).apply()
+
+    /**
+     * Per-source on/off toggle for the meme aggregator (key = [com.moodboard.keyboard.stickers.MemeSource.id]).
+     * Default **on** for every source - the client asked for maximum variety out of the
+     * box; the Setup "Meme sources" card lets the user narrow it back down.
+     */
+    fun isMemeSourceEnabled(sourceId: String): Boolean =
+        sp.getBoolean(KEY_SOURCE_ENABLED_PREFIX + sourceId, true)
+
+    fun setMemeSourceEnabled(sourceId: String, enabled: Boolean) {
+        sp.edit().putBoolean(KEY_SOURCE_ENABLED_PREFIX + sourceId, enabled).apply()
+    }
+
     /** Which meme culture pack to search first (SPEC_V3 A.2). Default South Indian (R2). */
     var memeCulture: MemeCulture
         get() = if (sp.getString(KEY_MEME_CULTURE, VAL_SOUTH_INDIAN) == VAL_GENERIC) {
@@ -138,6 +162,8 @@ class Prefs(context: Context) {
         private const val KEY_NVIDIA = "nvidia_key"
         private const val KEY_STICKER = "sticker_key"
         private const val KEY_PROVIDER = "provider"
+        private const val KEY_TENOR_API_KEY = "tenor_api_key"
+        private const val KEY_SOURCE_ENABLED_PREFIX = "meme_source_enabled_"
         private const val KEY_MODEL = "nvidia_model"
         private const val KEY_NEUTRAL_BASELINE = "neutral_baseline_v1"
         private const val KEY_NEUTRAL_BASELINE_AT = "neutral_baseline_at"

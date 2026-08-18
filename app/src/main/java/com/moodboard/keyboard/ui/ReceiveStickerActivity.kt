@@ -35,12 +35,26 @@ class ReceiveStickerActivity : AppCompatActivity() {
         }
 
         showMoodPickerDialog(this) { mood ->
-            val library = StickerLibrary(this)
             scope.launch {
-                val count = withContext(Dispatchers.IO) { library.addAll(uris, mood, source = "share") }
-                val msg = if (count > 0) getString(R.string.receive_sticker_saved)
-                else getString(R.string.receive_sticker_failed)
-                Toast.makeText(this@ReceiveStickerActivity, msg, Toast.LENGTH_SHORT).show()
+                // P0 stability: both the StickerLibrary construction (index load + legacy
+                // migration) and the import happen off the main thread; a truly unexpected
+                // failure degrades to the existing "failed" toast rather than propagating.
+                val count = withContext(Dispatchers.IO) {
+                    try {
+                        StickerLibrary(this@ReceiveStickerActivity).addAll(uris, mood, source = "share")
+                    } catch (t: Throwable) {
+                        0
+                    }
+                }
+                // Required outcome 3: show a clear confirmation of what was saved and
+                // where, not just a bare "saved" toast - the client's whole complaint was
+                // not being able to tell whether/where an import landed.
+                val msg = if (count > 0) {
+                    getString(R.string.receive_sticker_saved_detail, count, mood.emoji, mood.label)
+                } else {
+                    getString(R.string.receive_sticker_failed)
+                }
+                Toast.makeText(this@ReceiveStickerActivity, msg, Toast.LENGTH_LONG).show()
                 finish()
             }
         }

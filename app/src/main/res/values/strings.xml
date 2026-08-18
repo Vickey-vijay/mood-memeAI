@@ -3,10 +3,10 @@
     <string name="ime_label">MoodBoard Keyboard</string>
     <string name="manage_stickers">My Stickers</string>
 
-    <string name="setup_title">MoodBoard Setup</string>
-    <string name="setup_intro">An emotion-aware sticker keyboard. Scan your face, get matching stickers, send in one tap.</string>
-    <string name="step1">1. Enable MoodBoard in system settings</string>
-    <string name="step2">2. Switch your active keyboard to MoodBoard</string>
+    <string name="setup_title">Welcome to MoodBoard</string>
+    <string name="setup_intro">A keyboard that reads your face and hands you the perfect reaction - scan your mood, pick a sticker, send it in one tap.</string>
+    <string name="step1">Turn MoodBoard on</string>
+    <string name="step2">Then make it your active keyboard</string>
     <string name="step3">3. (Optional) Add your API keys for emotion + stickers</string>
     <string name="btn_enable">Enable keyboard</string>
     <string name="btn_switch">Choose keyboard</string>
@@ -15,7 +15,10 @@
     <string name="hint_nvidia">NVIDIA NIM API key (emotion)</string>
     <string name="hint_giphy">GIPHY / Tenor API key (stickers)</string>
     <string name="keys_saved">Saved.</string>
-    <string name="setup_ready">Keys are built in - no setup needed. Just enable MoodBoard and start typing.</string>
+    <string name="setup_ready">You\'re all set - no keys to paste in, just enable MoodBoard above and start typing.</string>
+    <string name="section_library">Your library</string>
+    <string name="section_accuracy">Face &amp; mood accuracy</string>
+    <string name="section_advanced">Advanced</string>
 
     <string name="add_sticker">Add sticker from gallery</string>
     <string name="no_custom_stickers">No custom stickers yet. Tap + to add.</string>
@@ -25,10 +28,10 @@
     <string name="btn_import_gallery">Import from gallery</string>
     <string name="btn_import_folder">Import a folder</string>
     <string name="btn_import_folder_short">Import folder</string>
-    <string name="mood_empty_state">No stickers in this mood yet.\n\nTap + to add from your gallery, use Import folder above, or share a sticker into MoodBoard from any app.</string>
+    <string name="mood_empty_state">Nothing here yet.\n\nTap + to pull stickers from your gallery, use Import folder above, or share one into MoodBoard from any app.</string>
     <string name="pick_mood_title">Save to which mood?</string>
     <string name="import_folder_title">Import stickers from a folder</string>
-    <string name="import_folder_explanation">MoodBoard can\'t read WhatsApp\'s own private sticker storage - no app can, by Android\'s design. What does work: pick WhatsApp\'s received-stickers folder below (readable via Android\'s file picker), or choose any other folder on your device.</string>
+    <string name="import_folder_explanation">WhatsApp keeps its sticker storage private, so no app - including this one - can read it directly. Here\'s what does work: pick WhatsApp\'s received-stickers folder below (Android\'s file picker can reach it), or choose any other folder on your device.</string>
     <string name="btn_import_whatsapp">Import WhatsApp stickers</string>
     <string name="btn_import_other_folder">Choose a different folder</string>
     <string name="imported_count">Imported %1$d sticker(s)</string>
@@ -38,12 +41,22 @@
     <string name="sticker_action_favorite">Favourite</string>
     <string name="sticker_action_unfavorite">Remove favourite</string>
     <string name="sticker_action_delete">Delete</string>
-    <string name="delete_sticker_title">Delete sticker?</string>
+    <string name="delete_sticker_title">Delete this sticker?</string>
     <string name="btn_delete">Delete</string>
     <string name="btn_cancel">Cancel</string>
     <string name="receive_sticker_title">Save to MoodBoard</string>
     <string name="receive_sticker_saved">Saved to MoodBoard</string>
+    <string name="receive_sticker_saved_detail">Saved %1$d sticker(s) to %2$s %3$s · find them in My Stickers</string>
     <string name="receive_sticker_failed">Couldn\'t save that sticker</string>
+    <string name="mood_pick_detected_row">%1$s  %2$s (detected)</string>
+    <string name="mood_stickers_hint">Long-press any sticker to set it as the cover, move it, favourite it, or delete it</string>
+
+    <!-- Client bug fix: long-press a sticker in the keyboard grid to keep it (outcome 4) -->
+    <string name="sticker_save_hint">Long-press a sticker to save it to My Stickers</string>
+    <string name="save_sticker_saved">Saved to %1$s stickers</string>
+    <string name="save_sticker_failed">Couldn\'t save that sticker - try again</string>
+    <string name="save_sticker_saving">Saving…</string>
+    <string name="mood_result_status">Mood: %1$s %2$s · tap to send · long-press to save</string>
 
     <!-- Keyboard UI -->
     <string name="btn_mood_label">Mood</string>
@@ -54,28 +67,28 @@
     <string name="cd_shift">Shift</string>
     <string name="cd_enter">Enter</string>
     <string name="cd_settings">Settings</string>
-    <string name="scanning">Scanning your mood…</string>
-    <string name="loading_stickers">Loading stickers…</string>
+    <string name="scanning">Reading your expression…</string>
+    <string name="loading_stickers">Finding stickers for that…</string>
     <string name="emotion_prefix">Mood:</string>
-    <string name="need_camera">Tap to allow camera for mood scan</string>
-    <string name="no_results">No stickers found. Try again.</string>
+    <string name="need_camera">Tap to allow the camera for a mood scan</string>
+    <string name="no_results">Couldn\'t find a match - give it another try.</string>
     <string name="key_space">space</string>
     <string name="key_enter">return</string>
 
     <!-- Emotion Engine v2: calibration -->
-    <string name="calibrate_nudge">Calibrate your neutral face for better accuracy — tap ⚙</string>
-    <string name="calibration_title">Calibrate Neutral Face</string>
-    <string name="calibration_intro">Hold a relaxed, neutral expression. This takes 3 seconds and helps MoodBoard read your face accurately.</string>
+    <string name="calibrate_nudge">Let\'s learn your neutral face for sharper reads — tap ⚙</string>
+    <string name="calibration_title">Learn your neutral face</string>
+    <string name="calibration_intro">Relax your expression and hold still for three seconds. This gives MoodBoard a baseline so it can read you accurately.</string>
     <string name="calibration_relax">Relax your face…</string>
     <string name="calibration_hold_still">Hold still…</string>
-    <string name="calibration_success">Calibrated! Your neutral face is saved.</string>
-    <string name="calibration_retry_msg">Hold a relaxed face and try again.</string>
+    <string name="calibration_success">Got it - your neutral face is saved.</string>
+    <string name="calibration_retry_msg">Relax your expression and give it another try.</string>
     <string name="btn_start_calibration">Start</string>
     <string name="btn_retry">Retry</string>
     <string name="btn_done">Done</string>
     <string name="calibration_card_title">Neutral face calibration</string>
     <string name="calibration_state_calibrated">Calibrated on %1$s</string>
-    <string name="calibration_state_uncalibrated">Not calibrated — accuracy may vary</string>
+    <string name="calibration_state_uncalibrated">Let\'s learn your neutral face so moods read accurately</string>
     <string name="btn_calibrate">Calibrate neutral face</string>
     <string name="btn_recalibrate">Re-calibrate</string>
     <string name="btn_emotion_lab">Open Emotion Lab</string>
@@ -83,30 +96,45 @@
     <!-- Emotion Lab -->
     <string name="emotion_lab_title">Emotion Lab</string>
     <string name="lab_calibrated">Calibrated on %1$s</string>
-    <string name="lab_uncalibrated">Not calibrated</string>
-    <string name="lab_au_header">Action Units</string>
+    <string name="lab_uncalibrated">Not calibrated yet</string>
+    <string name="lab_au_header">Action units</string>
 
-    <!-- SPEC_V3 A.7: GIPHY/Tenor attribution, shown only when online results are present -->
-    <string name="attribution_giphy">Powered by GIPHY</string>
-    <string name="attribution_tenor">via Tenor</string>
-    <string name="meme_attribution_about">Online stickers are sourced from GIPHY and Tenor.</string>
+    <!-- SPEC_V3 A.7 (multi-source): attribution, shown only when online results are present -->
+    <string name="attribution_powered_by">Powered by %1$s</string>
+    <string name="source_name_giphy">GIPHY</string>
+    <string name="source_name_tenor">Tenor</string>
+    <string name="source_name_imgflip">Imgflip</string>
+    <string name="meme_attribution_about">Online memes are pulled from GIPHY, Tenor and Imgflip.</string>
+
+    <!-- Provider-aggregator architecture: "Meme sources" Setup card -->
+    <string name="meme_sources_card_title">Meme sources</string>
+    <string name="meme_sources_card_explain">MoodBoard blends memes from a few sources at once so the grid stays varied. Turn any of them off, or add your own Tenor key for even more choice.</string>
+    <string name="source_label_giphy_gifs">GIPHY GIFs</string>
+    <string name="source_label_giphy_stickers">GIPHY stickers</string>
+    <string name="source_label_giphy_trending">GIPHY trending</string>
+    <string name="source_label_tenor">Tenor</string>
+    <string name="source_label_imgflip">Imgflip meme templates</string>
+    <string name="hint_tenor_key">Tenor API key (optional)</string>
+    <string name="btn_save_tenor_key">Save Tenor key</string>
+    <string name="tenor_key_saved">Tenor key saved</string>
+    <string name="tenor_key_cleared">Tenor key cleared — Tenor turned off</string>
 
     <!-- SPEC_V3 B — meme pre-cache card -->
     <string name="meme_cache_card_title">Meme cache</string>
-    <string name="meme_cache_stats">%1$d items · %2$s · last refresh: %3$s</string>
+    <string name="meme_cache_stats">%1$d items · %2$s · last refreshed %3$s</string>
     <string name="meme_cache_never">never</string>
     <string name="btn_refresh_meme_cache">Refresh now</string>
-    <string name="meme_cache_refreshing">Refreshing meme cache…</string>
-    <string name="meme_cache_refresh_queued">Meme cache refresh queued</string>
+    <string name="meme_cache_refreshing">Refreshing…</string>
+    <string name="meme_cache_refresh_queued">Refresh queued</string>
     <string name="prefetch_enabled_label">Pre-cache trending memes</string>
     <string name="prefetch_wifi_only_label">Only on Wi-Fi</string>
 
     <!-- SPEC_V3 C — floating overlay bubble -->
     <string name="overlay_card_title">Floating meme button</string>
-    <string name="overlay_card_explain">A draggable bubble that floats over any app. Tap it to scan your face and pick a meme — no keyboard needed. Because an overlay can\'t type into another app\'s text box, the meme is copied to your clipboard (long-press the chat box → Paste) or sent through the share sheet.</string>
-    <string name="overlay_state_needs_permission">Display-over-other-apps permission not granted</string>
-    <string name="overlay_state_running">Running — the bubble is on screen</string>
-    <string name="overlay_state_stopped">Stopped</string>
+    <string name="overlay_card_explain">A draggable bubble that floats over any app - tap it to scan your face and grab a meme without switching keyboards. Since an overlay can\'t type into another app\'s text box, the meme lands on your clipboard (long-press the chat box → Paste) or opens the share sheet instead.</string>
+    <string name="overlay_state_needs_permission">Needs \"display over other apps\" permission</string>
+    <string name="overlay_state_running">Running - the bubble is on screen</string>
+    <string name="overlay_state_stopped">Not running</string>
     <string name="btn_overlay_start">Start floating button</string>
     <string name="btn_overlay_stop">Stop floating button</string>
     <string name="overlay_started">Floating button started</string>
@@ -128,24 +156,29 @@
     <string name="overlay_btn_close">Close</string>
     <string name="overlay_btn_use_mood">Use this mood</string>
     <string name="overlay_btn_share">Share…</string>
-    <string name="overlay_starting_camera">Starting camera…</string>
+    <string name="overlay_starting_camera">Starting the camera…</string>
     <string name="overlay_look_at_camera">Look at the camera…</string>
     <string name="overlay_center_face">Center your face in the frame</string>
-    <string name="overlay_make_a_face">Make a clear face — or tap Use this mood</string>
-    <string name="overlay_detecting">Detecting… %1$s (%2$d%%)</string>
+    <string name="overlay_make_a_face">Make a clear expression — or tap Use this mood</string>
+    <string name="overlay_detecting">Reading… %1$s (%2$d%%)</string>
     <string name="overlay_finding">Mood: %1$s · finding memes…</string>
     <string name="overlay_mood_tap">Mood: %1$s %2$s · tap a meme to copy</string>
-    <string name="overlay_mood_emoji">Mood: %1$s · memes unavailable · emoji instead</string>
+    <string name="overlay_mood_emoji">Mood: %1$s · memes unavailable · here\'s an emoji instead</string>
     <string name="overlay_tap_to_copy">Tap a meme to copy it · long-press to share</string>
     <string name="overlay_tap_to_copy_emoji">Tap an emoji to copy it</string>
     <string name="overlay_copying">Preparing…</string>
     <string name="overlay_copied">Copied</string>
     <string name="overlay_copied_hint">Copied — long-press the chat box and tap Paste.</string>
-    <string name="overlay_sharing">Opening share sheet…</string>
+    <string name="overlay_sharing">Opening the share sheet…</string>
     <string name="overlay_shared">Shared</string>
     <string name="overlay_pick_first">Tap a meme first, then Share</string>
     <string name="overlay_need_camera">Camera permission needed for the mood scan</string>
-    <string name="overlay_camera_busy">Camera is in use — close the keyboard scan first</string>
+    <string name="overlay_camera_busy">Camera\'s busy — close the keyboard scan first</string>
     <string name="overlay_camera_error">Camera: %1$s</string>
     <string name="overlay_model_failed">Couldn\'t load the face model</string>
+
+    <!-- Sticker library resilience (P0 hardening) -->
+    <string name="import_folder_unavailable">No folder picker available on this device</string>
+    <string name="sticker_library_load_failed">Couldn\'t load your stickers</string>
+    <string name="sticker_library_loading">Loading your stickers…</string>
 </resources>

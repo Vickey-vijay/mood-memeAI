@@ -5,15 +5,16 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingTop="3dp"
-    android:paddingBottom="3dp">
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
 
     <TextView
         android:id="@+id/auLabel"
         android:layout_width="130dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/kb_text"
+        android:textColor="@color/kb_text_muted"
         android:textAppearance="?attr/textAppearanceLabelSmall"
+        android:letterSpacing="0.01"
         android:maxLines="1"
         android:ellipsize="end" />
 

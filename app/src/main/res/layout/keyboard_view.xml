@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/keyboardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -11,12 +12,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="46dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@color/kb_toolbar"
         android:paddingStart="6dp"
-        android:paddingEnd="6dp">
+        android:paddingEnd="8dp">
 
         <ImageButton
             android:id="@+id/btnSettings"
@@ -25,7 +26,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_settings"
             android:src="@drawable/ic_settings"
-            android:tint="?attr/colorControlNormal" />
+            app:tint="?attr/colorControlNormal" />
 
         <ImageButton
             android:id="@+id/btnBackToKeys"
@@ -35,33 +36,36 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_abc"
             android:src="@drawable/ic_keyboard"
-            android:tint="?attr/colorControlNormal" />
+            app:tint="?attr/colorControlNormal" />
 
         <TextView
             android:id="@+id/statusText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:textColor="@color/kb_text"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/kb_text_muted"
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:maxLines="1"
             android:ellipsize="end"
             android:text="@string/setup_intro" />
 
+        <!-- The mood button is the hero affordance of the keyboard: full-round saffron pill,
+             clearly bigger than every neighbouring control. -->
         <Button
             android:id="@+id/btnMood"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="36dp"
             android:minWidth="0dp"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:background="@drawable/mood_btn_bg"
-            android:textColor="@color/white"
+            android:textColor="@color/md_on_primary"
             android:textAllCaps="false"
             android:textAppearance="?attr/textAppearanceLabelMedium"
+            android:textStyle="bold"
             android:drawableStart="@drawable/ic_mood"
-            android:drawableTint="@color/white"
+            android:drawableTint="@color/md_on_primary"
             android:drawablePadding="6dp"
             android:contentDescription="@string/cd_mood"
             android:text="@string/btn_mood_label" />
@@ -89,6 +93,9 @@
             android:id="@+id/cameraContainer"
             android:layout_width="match_parent"
             android:layout_height="220dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/card_bg"
+            android:clipToOutline="true"
             android:visibility="gone">
 
             <androidx.camera.view.PreviewView
@@ -98,12 +105,16 @@
 
             <TextView
                 android:id="@+id/calibrationNudge"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:background="#99000000"
-                android:padding="6dp"
-                android:textColor="@color/white"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/chip_pill_bg"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textColor="@color/kb_text"
                 android:textAppearance="?attr/textAppearanceLabelSmall"
                 android:gravity="center"
                 android:visibility="gone"
@@ -114,26 +125,37 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:orientation="vertical"
-                android:background="#99000000"
-                android:padding="8dp">
+                android:gravity="center_horizontal"
+                android:background="#B3000000"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="10dp">
 
                 <TextView
                     android:id="@+id/cameraHint"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:textColor="@color/white"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
                     android:text="@string/scanning" />
 
+                <!-- The "why" contributors read as a small designed tag, not a debug string. -->
                 <TextView
                     android:id="@+id/cameraWhyText"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/chip_pill_bg"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
                     android:gravity="center_horizontal"
                     android:textColor="@color/kb_text_muted"
-                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:letterSpacing="0.02"
                     android:maxLines="1"
                     android:ellipsize="end" />
             </LinearLayout>
@@ -154,11 +176,11 @@
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="6dp"
             android:layout_marginBottom="4dp"
-            android:background="@drawable/card_bg"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
+            android:background="@drawable/chip_pill_bg"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
             android:textColor="@color/kb_text_muted"
             android:textAppearance="?attr/textAppearanceLabelSmall"
             android:visibility="gone" />

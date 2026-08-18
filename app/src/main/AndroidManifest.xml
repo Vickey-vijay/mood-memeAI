@@ -3,15 +3,26 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Both declared required="false": the keyboard, sticker library and meme grid all work
+         without a camera, so the app must stay installable on camera-less devices (and not be
+         filtered out of Chrome OS / tablet listings). Only the mood scan needs the camera. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
     <!-- SPEC_V3 C.4 - floating overlay bubble -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- P0 stability fix: the overlay panel opens the front camera while the service is
+         running as a specialUse FGS. On API 34+ (targetSdk 34; confirmed reproducing on the
+         Android 16 test device) that throws SecurityException and kills the process unless
+         the service also declares the camera FGS type and holds this permission. See
+         FloatingBubbleService.goForegroundWithCameraIfPermitted(). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".MoodBoardApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -92,24 +103,34 @@
             android:theme="@style/Theme.Transparent"
             android:excludeFromRecents="true" />
 
+        <!-- Client bug fix (required outcome 4): long-press "Save to my stickers" from the
+             keyboard's result grid. The IME can't show a dialog itself, so it launches this
+             transparent activity to pick a mood and save - same pattern as PermissionActivity
+             above. (The overlay's long-press is unchanged - it already does Share, SPEC_V3 C.5.) -->
+        <activity
+            android:name=".ui.SaveStickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true" />
+
         <!-- SPEC_V3 C.4 - floating bubble foreground service.
-             specialUse is the correct type: this service exists solely to keep a
-             SYSTEM_ALERT_WINDOW bubble on screen, which matches no predefined FGS type.
-             It is never started from the background - only from OverlayPermissionActivity,
-             i.e. a user tap in a visible Activity - so the Android 12+ background-FGS-start
-             restriction is satisfied, and START_NOT_STICKY keeps the system from restarting
-             it on its own.
-             NOTE for the Android 14+ reviewer: the panel opens the front camera while
-             scanning. The process has a visible overlay window at that moment, which is what
-             keeps it out of the "background camera access" ban. If a specific OEM build on
-             Android 16 still denies camera frames to this service, the one-line fix is to
-             declare foregroundServiceType="specialUse|camera" here and add
-             <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
-             above. Kept spec-exact (specialUse only) as SPEC_V3 C.4 mandates. -->
+             specialUse is the base type: this service exists to keep a SYSTEM_ALERT_WINDOW
+             bubble on screen, which matches no other predefined FGS type. It is never started
+             from the background - only from OverlayPermissionActivity, i.e. a user tap in a
+             visible Activity - so the Android 12+ background-FGS-start restriction is
+             satisfied, and START_NOT_STICKY keeps the system from restarting it on its own.
+             P0 FIX: the expanded panel opens the front camera while scanning. On API 34+ a
+             foreground service must declare the "camera" FGS type (and hold
+             FOREGROUND_SERVICE_CAMERA) at the moment it is actually using the camera, or the
+             system throws SecurityException and kills the process - this was confirmed as the
+             app's main "can't open the app" crash on the Android 16 test device. The service
+             starts as specialUse-only (bubble has no camera need yet) and elevates to
+             specialUse|camera immediately before the panel's camera opens - see
+             FloatingBubbleService.goForegroundWithCameraIfPermitted(). -->
         <service
             android:name=".overlay.FloatingBubbleService"
             android:exported="false"
-            android:foregroundServiceType="specialUse"
+            android:foregroundServiceType="specialUse|camera"
             android:stopWithTask="false">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"

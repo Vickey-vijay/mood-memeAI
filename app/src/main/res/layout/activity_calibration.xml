@@ -20,14 +20,18 @@
         android:layout_marginTop="8dp"
         android:text="@string/calibration_intro"
         android:textColor="@color/kb_text_muted"
-        android:textAppearance="?attr/textAppearanceBodyMedium" />
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:lineSpacingMultiplier="1.15" />
 
+    <!-- The camera preview is the hero surface of this screen: bigger radius, saffron
+         outline, matches the treatment used for the "one important thing" elsewhere. -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/card_bg">
+        android:layout_marginTop="18dp"
+        android:background="@drawable/card_hero_bg"
+        android:clipToOutline="true">
 
         <androidx.camera.view.PreviewView
             android:id="@+id/cameraPreview"
@@ -58,14 +62,13 @@
     <Button
         android:id="@+id/btnStart"
         style="@style/SetupButton"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="18dp"
         android:drawableStart="@drawable/ic_camera"
         android:text="@string/btn_start_calibration" />
 
     <Button
         android:id="@+id/btnRetry"
-        style="@style/SetupButton"
-        android:layout_marginTop="16dp"
+        style="@style/SetupButtonSecondary"
         android:visibility="gone"
         android:drawableStart="@drawable/ic_refresh"
         android:text="@string/btn_retry" />
@@ -73,7 +76,6 @@
     <Button
         android:id="@+id/btnDone"
         style="@style/SetupButton"
-        android:layout_marginTop="16dp"
         android:visibility="gone"
         android:drawableStart="@drawable/ic_check"
         android:text="@string/btn_done" />

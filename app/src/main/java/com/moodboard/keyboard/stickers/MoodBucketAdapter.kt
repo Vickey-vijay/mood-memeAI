@@ -1,10 +1,12 @@
 package com.moodboard.keyboard.stickers
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.moodboard.keyboard.R
@@ -63,6 +65,9 @@ class MoodBucketAdapter(
  */
 class MoodPickAdapter(
     private val moods: List<Emotion>,
+    /** Save-sticker flow (required outcome 4): the currently-detected mood, if any,
+     *  shown first and visually marked so the picker defaults to it without forcing it. */
+    private val highlighted: Emotion? = null,
     private val onPick: (Emotion) -> Unit
 ) : RecyclerView.Adapter<MoodPickAdapter.VH>() {
 
@@ -74,7 +79,7 @@ class MoodPickAdapter(
             )
             setPadding(24, 26, 24, 26)
             textSize = 16f
-            setTextColor(0xFFFFFFFF.toInt())
+            setTextColor(ContextCompat.getColor(context, R.color.kb_text))
         }
         return VH(tv)
     }
@@ -83,7 +88,13 @@ class MoodPickAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val e = moods[position]
-        holder.tv.text = "${e.emoji}  ${e.label}"
+        val isDefault = e == highlighted
+        holder.tv.text = if (isDefault) {
+            holder.tv.context.getString(R.string.mood_pick_detected_row, e.emoji, e.label)
+        } else {
+            "${e.emoji}  ${e.label}"
+        }
+        holder.tv.setTypeface(holder.tv.typeface, if (isDefault) Typeface.BOLD else Typeface.NORMAL)
         holder.tv.setOnClickListener { onPick(e) }
     }
 

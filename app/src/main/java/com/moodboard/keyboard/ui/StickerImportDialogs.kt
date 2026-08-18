@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.moodboard.keyboard.R
@@ -44,13 +45,24 @@ fun buildOpenTreeIntent(initialUri: Uri?): Intent {
     return intent
 }
 
-/** Mood picker used for import targets and "move to another mood" (SPEC_V2 B.3). */
-fun showMoodPickerDialog(context: Context, onPick: (Emotion) -> Unit) {
+/**
+ * Mood picker used for import targets, "move to another mood" (SPEC_V2 B.3), and the
+ * in-keyboard "save this sticker" flow (required outcome 4). When [defaultMood] is given
+ * (the mood detected for the current scan) it is moved to the top of the list and marked,
+ * so the picker defaults sensibly without forcing the choice - the user can still pick
+ * any other mood in one tap.
+ */
+fun showMoodPickerDialog(context: Context, defaultMood: Emotion? = null, onPick: (Emotion) -> Unit) {
     val binding = DialogMoodPickerBinding.inflate(LayoutInflater.from(context))
     val dialog = BottomSheetDialog(context)
     dialog.setContentView(binding.root)
     binding.pickerGrid.layoutManager = LinearLayoutManager(context)
-    binding.pickerGrid.adapter = MoodPickAdapter(Emotion.values().toList()) { mood ->
+    val ordered = if (defaultMood != null) {
+        listOf(defaultMood) + Emotion.values().filter { it != defaultMood }
+    } else {
+        Emotion.values().toList()
+    }
+    binding.pickerGrid.adapter = MoodPickAdapter(ordered, defaultMood) { mood ->
         dialog.dismiss()
         onPick(mood)
     }
@@ -78,14 +90,14 @@ fun showImportFolderSheet(context: Context, onChoice: (useWhatsAppFolder: Boolea
     val title = TextView(context).apply {
         layoutParams = matchWrap
         text = context.getString(R.string.import_folder_title)
-        setTextColor(0xFFFFFFFF.toInt())
+        setTextColor(ContextCompat.getColor(context, R.color.kb_text))
         textSize = 17f
         setTypeface(typeface, Typeface.BOLD)
     }
     val explain = TextView(context).apply {
         layoutParams = matchWrap
         text = context.getString(R.string.import_folder_explanation)
-        setTextColor(0xFFB9BEC9.toInt())
+        setTextColor(ContextCompat.getColor(context, R.color.kb_text_muted))
         textSize = 13f
         setPadding(0, gap, 0, pad)
     }
@@ -95,14 +107,14 @@ fun showImportFolderSheet(context: Context, onChoice: (useWhatsAppFolder: Boolea
         )
         text = context.getString(R.string.btn_import_whatsapp)
         setBackgroundResource(R.drawable.mood_btn_bg)
-        setTextColor(0xFFFFFFFF.toInt())
+        setTextColor(ContextCompat.getColor(context, R.color.md_on_primary))
         isAllCaps = false
         setOnClickListener { dialog.dismiss(); onChoice(true) }
     }
     val btnOther = Button(context).apply {
         text = context.getString(R.string.btn_import_other_folder)
         setBackgroundResource(R.drawable.mood_btn_bg)
-        setTextColor(0xFFFFFFFF.toInt())
+        setTextColor(ContextCompat.getColor(context, R.color.md_on_primary))
         isAllCaps = false
         val lp = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT

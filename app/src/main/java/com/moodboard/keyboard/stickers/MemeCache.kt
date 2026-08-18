@@ -36,7 +36,10 @@ class MemeCache(context: Context) {
         val query: String,
         val fetchedAt: Long,
         var lastUsedAt: Long,
-        val bytes: Long
+        val bytes: Long,
+        /** [MemeSource.id] this entry was fetched from (provider-aggregator architecture).
+         *  Empty for entries written before this field existed - back-compat via [optString]. */
+        val source: String = ""
     )
 
     data class CacheStats(
@@ -53,7 +56,16 @@ class MemeCache(context: Context) {
     private val items = ArrayList<Entry>()
 
     init {
-        synchronized(lock) { loadOrRebuild() }
+        // P0 stability: same belt-and-suspenders guard as StickerLibrary - loadOrRebuild()
+        // already recovers from a corrupt index on its own, this just ensures a truly
+        // unexpected failure can never stop MemeCache() from constructing, since it's on the
+        // path of SetupActivity, the IME, and the overlay panel alike.
+        try {
+            synchronized(lock) { loadOrRebuild() }
+        } catch (t: Throwable) {
+            Log.w(TAG, "MemeCache init failed - starting with an empty cache", t)
+            synchronized(lock) { items.clear() }
+        }
     }
 
     // ---------------- B.2/B.4 public API ----------------
@@ -90,7 +102,7 @@ class MemeCache(context: Context) {
      * timestamps rather than duplicating storage. Returns null on any I/O failure or
      * empty payload — the caller (the worker) treats that emotion as skipped, not fatal.
      */
-    fun insert(emotion: Emotion, query: String, mime: String, bytes: ByteArray): StickerItem? {
+    fun insert(emotion: Emotion, query: String, mime: String, bytes: ByteArray, source: String = ""): StickerItem? {
         if (bytes.isEmpty()) return null
         return try {
             val id = sha1(bytes)
@@ -103,7 +115,7 @@ class MemeCache(context: Context) {
                 val existingIdx = items.indexOfFirst { it.id == id && it.mood == emotion.key }
                 if (existingIdx >= 0 && dest.exists()) {
                     // Same content already cached - just mark it fresh.
-                    items[existingIdx] = items[existingIdx].copy(fetchedAt = now, lastUsedAt = now)
+                    items[existingIdx] = items[existingIdx].copy(fetchedAt = now, lastUsedAt = now, source = source)
                 } else {
                     val tmp = File(moodDir, "$id.$ext.tmp")
                     tmp.writeBytes(bytes)
@@ -119,7 +131,8 @@ class MemeCache(context: Context) {
                         query = query,
                         fetchedAt = now,
                         lastUsedAt = now,
-                        bytes = dest.length()
+                        bytes = dest.length(),
+                        source = source
                     )
                     if (existingIdx >= 0) items[existingIdx] = entry else items.add(entry)
                 }
@@ -178,7 +191,8 @@ class MemeCache(context: Context) {
             mood = entry.mood,
             favorite = false,
             providerId = "",
-            rawText = entry.query
+            rawText = entry.query,
+            source = entry.source
         )
     }
 
@@ -231,7 +245,8 @@ class MemeCache(context: Context) {
                     query = o.optString("query", ""),
                     fetchedAt = o.optLong("fetchedAt", 0L),
                     lastUsedAt = o.optLong("lastUsedAt", 0L),
-                    bytes = o.optLong("bytes", 0L)
+                    bytes = o.optLong("bytes", 0L),
+                    source = o.optString("source", "")
                 )
             )
         }
@@ -286,6 +301,7 @@ class MemeCache(context: Context) {
                 o.put("fetchedAt", e.fetchedAt)
                 o.put("lastUsedAt", e.lastUsedAt)
                 o.put("bytes", e.bytes)
+                o.put("source", e.source)
                 arr.put(o)
             }
             json.put("items", arr)

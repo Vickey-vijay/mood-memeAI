@@ -1,0 +1,6 @@
+<!-- Full-round translucent-black chip for badges sitting on top of photos (mood bucket
+     covers, sticker previews) - stays legible over any image regardless of light/dark theme. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#B3000000"/>
+    <corners android:radius="999dp"/>
+</shape>

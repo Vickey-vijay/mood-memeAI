@@ -29,7 +29,9 @@ import kotlinx.coroutines.withContext
 class MoodStickersActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMoodStickersBinding
-    private lateinit var library: StickerLibrary
+    // P0 stability: same reasoning as StickerManagerActivity - nullable, loaded off the main
+    // thread in loadLibrary(); every access guards against it still being null.
+    private var library: StickerLibrary? = null
     private lateinit var adapter: StickerAdapter
     private lateinit var mood: Emotion
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -55,7 +57,6 @@ class MoodStickersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMoodStickersBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        library = StickerLibrary(this)
 
         val key = intent.getStringExtra(EXTRA_MOOD_KEY)
         mood = Emotion.values().find { it.key == key } ?: Emotion.NEUTRAL
@@ -68,14 +69,22 @@ class MoodStickersActivity : AppCompatActivity() {
         binding.stickerGrid.layoutManager = GridLayoutManager(this, 3)
         binding.stickerGrid.adapter = adapter
 
-        binding.fabAdd.setOnClickListener { pickImages.launch("image/*") }
+        binding.fabAdd.setOnClickListener {
+            if (library == null) { toastLoading(); return@setOnClickListener }
+            pickImages.launch("image/*")
+        }
         binding.btnImportFolder.setOnClickListener {
+            if (library == null) { toastLoading(); return@setOnClickListener }
             showImportFolderSheet(this) { useWhatsApp ->
-                openTree.launch(buildOpenTreeIntent(if (useWhatsApp) WHATSAPP_STICKERS_URI else null))
+                try {
+                    openTree.launch(buildOpenTreeIntent(if (useWhatsApp) WHATSAPP_STICKERS_URI else null))
+                } catch (t: Throwable) {
+                    Toast.makeText(this, R.string.import_folder_unavailable, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
-        refresh()
+        loadLibrary()
     }
 
     override fun onResume() {
@@ -83,17 +92,38 @@ class MoodStickersActivity : AppCompatActivity() {
         refresh()
     }
 
+    /** P0 stability: full index load off the main thread (see [library]). */
+    private fun loadLibrary() {
+        binding.progress.visibility = View.VISIBLE
+        scope.launch {
+            library = try {
+                withContext(Dispatchers.IO) { StickerLibrary(this@MoodStickersActivity) }
+            } catch (t: Throwable) {
+                Toast.makeText(this@MoodStickersActivity, R.string.sticker_library_load_failed, Toast.LENGTH_LONG).show()
+                null
+            }
+            binding.progress.visibility = View.GONE
+            refresh()
+        }
+    }
+
+    private fun toastLoading() {
+        Toast.makeText(this, R.string.sticker_library_loading, Toast.LENGTH_SHORT).show()
+    }
+
     private fun refresh() {
-        val items = library.list(mood)
+        val lib = library ?: return
+        val items = lib.list(mood)
         adapter.submit(items)
         binding.moodTitleText.text = "${mood.emoji} ${mood.label} · ${items.size}"
         binding.emptyLabel.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun importGallery(uris: List<Uri>) {
+        val lib = library ?: run { toastLoading(); return }
         binding.progress.visibility = View.VISIBLE
         scope.launch {
-            val count = withContext(Dispatchers.IO) { library.addAll(uris, mood) }
+            val count = withContext(Dispatchers.IO) { lib.addAll(uris, mood) }
             binding.progress.visibility = View.GONE
             refresh()
             Toast.makeText(this@MoodStickersActivity, getString(R.string.imported_count, count), Toast.LENGTH_SHORT).show()
@@ -101,9 +131,10 @@ class MoodStickersActivity : AppCompatActivity() {
     }
 
     private fun importTree(treeUri: Uri) {
+        val lib = library ?: run { toastLoading(); return }
         binding.progress.visibility = View.VISIBLE
         scope.launch {
-            val count = withContext(Dispatchers.IO) { library.importTree(treeUri, mood) }
+            val count = withContext(Dispatchers.IO) { lib.importTree(treeUri, mood) }
             binding.progress.visibility = View.GONE
             refresh()
             val msg = if (count > 0) getString(R.string.imported_count, count) else getString(R.string.import_none_found)
@@ -122,16 +153,17 @@ class MoodStickersActivity : AppCompatActivity() {
         )
         AlertDialog.Builder(this)
             .setItems(actions) { _, which ->
+                val lib = library ?: run { toastLoading(); return@setItems }
                 when (which) {
-                    0 -> { library.setCover(mood, item.id); refresh() }
+                    0 -> { lib.setCover(mood, item.id); refresh() }
                     1 -> showMoodPickerDialog(this) { target ->
-                        library.move(item.id, target)
+                        lib.move(item.id, target)
                         refresh()
                         if (target != mood) {
                             Toast.makeText(this, "${item.mood} -> ${target.label}", Toast.LENGTH_SHORT).show()
                         }
                     }
-                    2 -> { library.setFavorite(item.id, !item.favorite); refresh() }
+                    2 -> { lib.setFavorite(item.id, !item.favorite); refresh() }
                     3 -> confirmDelete(item)
                 }
             }
@@ -141,7 +173,7 @@ class MoodStickersActivity : AppCompatActivity() {
     private fun confirmDelete(item: StickerItem) {
         AlertDialog.Builder(this)
             .setTitle(R.string.delete_sticker_title)
-            .setPositiveButton(R.string.btn_delete) { _, _ -> library.delete(item.id); refresh() }
+            .setPositiveButton(R.string.btn_delete) { _, _ -> library?.delete(item.id); refresh() }
             .setNegativeButton(R.string.btn_cancel, null)
             .show()
     }

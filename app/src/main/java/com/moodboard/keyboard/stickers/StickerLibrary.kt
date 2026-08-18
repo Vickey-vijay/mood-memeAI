@@ -56,9 +56,24 @@ class StickerLibrary(context: Context) {
     private val covers = HashMap<String, String>() // mood key -> sticker id
 
     init {
-        synchronized(lock) {
-            loadOrRebuild()
-            migrateLegacyStore()
+        // P0 stability: loadOrRebuild()/migrateLegacyStore() already degrade gracefully on
+        // their own (corrupt index -> rebuild from disk, unreadable legacy files -> skipped),
+        // but this outer guard is the last line of defense - a genuinely unexpected disk/IO
+        // failure here must never prevent every screen that constructs a StickerLibrary
+        // (StickerManagerActivity, MoodStickersActivity, ReceiveStickerActivity, the IME's
+        // StickerRepository, the overlay panel's StickerRepository) from opening at all.
+        try {
+            synchronized(lock) {
+                loadOrRebuild()
+                migrateLegacyStore()
+                repairOrphanMoods()
+            }
+        } catch (t: Throwable) {
+            Log.w(TAG, "StickerLibrary init failed - starting with an empty library", t)
+            synchronized(lock) {
+                items.clear()
+                covers.clear()
+            }
         }
     }
 
@@ -84,6 +99,36 @@ class StickerLibrary(context: Context) {
         if (moved > 0) Log.i(TAG, "Migrated $moved sticker(s) from the v1 flat store into NEUTRAL")
     }
 
+    /**
+     * Client-blocking bug fix: any item whose stored `mood` isn't a real [Emotion.key] —
+     * most concretely the `uncategorised/` bucket [rebuildFromDisk] falls back to for a
+     * directory it doesn't recognise — is invisible forever, because [moods] only ever
+     * enumerates real [Emotion] values and [list] can only be called with one. That is a
+     * real defect: a sticker can be saved successfully and still be permanently
+     * unreachable from the UI. Fold every such orphan onto NEUTRAL (same destination
+     * [migrateLegacyStore] already uses for pre-v2 stickers) so it is always reachable
+     * from the Manage Stickers grid, then let the user move it from there. Runs on every
+     * construction, so it also heals an index that was hand-edited or produced by a
+     * future bug, not just the one known path.
+     */
+    private fun repairOrphanMoods() {
+        val validKeys = Emotion.values().mapTo(HashSet()) { it.key }
+        var changed = false
+        for (i in items.indices) {
+            val entry = items[i]
+            if (entry.mood !in validKeys) {
+                Log.w(TAG, "Orphan mood bucket '${entry.mood}' on sticker ${entry.id} - moving to NEUTRAL")
+                items[i] = entry.copy(mood = Emotion.NEUTRAL.key)
+                changed = true
+            }
+        }
+        // Covers become dangling if they pointed at an id whose mood just changed under it.
+        if (changed) {
+            covers.entries.removeAll { (moodKey, id) -> items.none { it.id == id && it.mood == moodKey } }
+            persist()
+        }
+    }
+
     // ---------------- B.2 public API ----------------
 
     fun moods(): List<MoodBucket> = synchronized(lock) {
@@ -98,6 +143,18 @@ class StickerLibrary(context: Context) {
 
     fun list(mood: Emotion): List<StickerItem> = synchronized(lock) {
         pickForMood(mood.key).map { toItem(it) }
+    }
+
+    /**
+     * Every stored sticker regardless of mood, favourites first then newest first.
+     * Required outcome 1 (client bug fix): [StickerRepository] uses this as a last-resort
+     * "any mood" tier so a populated personal library is never invisible in the result
+     * grid just because none of its stickers happen to be filed under the detected mood
+     * or its runner-up.
+     */
+    fun listAll(): List<StickerItem> = synchronized(lock) {
+        items.sortedWith(compareByDescending<Entry> { it.favorite }.thenByDescending { it.addedAt })
+            .map { toItem(it) }
     }
 
     fun add(uri: Uri, mood: Emotion, source: String = "gallery"): StickerItem? {
@@ -236,8 +293,15 @@ class StickerLibrary(context: Context) {
         favorite = entry.favorite
     )
 
-    /** Shared write path for add/addAll/importTree/ReceiveStickerActivity. */
-    private fun addBytes(bytes: ByteArray, declaredMime: String?, mood: Emotion, source: String): StickerItem? {
+    /**
+     * Shared write path for add/addAll/importTree/ReceiveStickerActivity, and also called
+     * directly by [com.moodboard.keyboard.ui.SaveStickerActivity] (required outcome 4: the
+     * in-keyboard "save this sticker I found" flow) once it has the raw bytes in hand —
+     * downloaded from an online meme's URL, or read straight off disk for one already in
+     * the cache/library. Format is byte-sniffed first ([sniffFormat]); [declaredMime] is
+     * only a fallback, so a source with a missing/wrong Content-Type still saves correctly.
+     */
+    fun addBytes(bytes: ByteArray, declaredMime: String?, mood: Emotion, source: String): StickerItem? {
         if (bytes.isEmpty()) return null
         val format = sniffFormat(bytes) ?: mimeToFormat(declaredMime) ?: return null
         val id = UUID.randomUUID().toString()

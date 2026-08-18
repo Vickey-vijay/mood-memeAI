@@ -14,7 +14,11 @@ import org.json.JSONObject
 class RecentlyShownStore(private val prefs: Prefs) {
 
     /** identity -> lastShownAt, ordered oldest-first, per mood key. */
-    private val store: MutableMap<String, MutableList<Pair<String, Long>>> = loadFromPrefs()
+    private val store: MutableMap<String, MutableList<Pair<String, Long>>> =
+        // loadFromPrefs() already resets to empty on a corrupt JSON blob; this outer guard
+        // covers anything else unexpected so RecentlyShownStore's constructor - on the path
+        // of every sticker search - can never throw.
+        try { loadFromPrefs() } catch (t: Throwable) { mutableMapOf() }
 
     /**
      * Drops items whose identity was recently shown for [emotion]. If that leaves fewer
