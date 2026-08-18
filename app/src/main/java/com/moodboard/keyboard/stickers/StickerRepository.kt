@@ -129,17 +129,44 @@ class StickerRepository(
         val offset = random.nextInt(MAX_OFFSET + 1)
         val items = when (prefs.provider.lowercase()) {
             "tenor" -> tenor(query, limit, offset)
-            else -> giphy(query, limit, offset)
+            else -> giphyMerged(query, limit, offset, culture)
         }
         if (items.isNotEmpty()) lastFetchProvider = prefs.provider.lowercase()
         return items
     }
 
+    /**
+     * GIPHY has two relevant search endpoints: `/v1/stickers/search` (transparent,
+     * but almost no South Indian content) and `/v1/gifs/search` (opaque, 10-100x more
+     * South Indian hits per live measurement). For [MemeCulture.SOUTH_INDIAN] the gifs
+     * endpoint is primary; for [MemeCulture.GENERIC] stickers stays primary (unchanged
+     * behaviour). If the primary yields fewer than [limit], the secondary endpoint is
+     * queried with the same query/offset and the results are merged.
+     */
+    private fun giphyMerged(query: String, limit: Int, offset: Int, culture: MemeCulture): List<StickerItem> {
+        val primaryUrl = if (culture == MemeCulture.SOUTH_INDIAN) GIPHY_GIFS_URL else GIPHY_STICKERS_URL
+        val secondaryUrl = if (culture == MemeCulture.SOUTH_INDIAN) GIPHY_STICKERS_URL else GIPHY_GIFS_URL
+
+        val primary = try {
+            giphy(query, limit, offset, primaryUrl)
+        } catch (t: Throwable) {
+            emptyList()
+        }
+        if (primary.size >= limit) return primary
+
+        val secondary = try {
+            giphy(query, limit - primary.size, offset, secondaryUrl)
+        } catch (t: Throwable) {
+            emptyList()
+        }
+        return primary + secondary
+    }
+
     private fun successOrFailure(local: List<StickerItem>, cause: Throwable? = null): Result<List<StickerItem>> =
         if (local.isNotEmpty()) Result.success(local) else Result.failure(cause ?: RuntimeException("No stickers"))
 
-    private fun giphy(query: String, limit: Int, offset: Int): List<StickerItem> {
-        val url = "https://api.giphy.com/v1/stickers/search".toHttpUrl().newBuilder()
+    private fun giphy(query: String, limit: Int, offset: Int, endpoint: String = GIPHY_STICKERS_URL): List<StickerItem> {
+        val url = endpoint.toHttpUrl().newBuilder()
             .addQueryParameter("api_key", prefs.stickerKey)
             .addQueryParameter("q", query)
             .addQueryParameter("limit", limit.toString())
@@ -232,5 +259,7 @@ class StickerRepository(
     companion object {
         private const val RELATED_THRESHOLD = 12
         private const val MAX_OFFSET = 40
+        private const val GIPHY_STICKERS_URL = "https://api.giphy.com/v1/stickers/search"
+        private const val GIPHY_GIFS_URL = "https://api.giphy.com/v1/gifs/search"
     }
 }

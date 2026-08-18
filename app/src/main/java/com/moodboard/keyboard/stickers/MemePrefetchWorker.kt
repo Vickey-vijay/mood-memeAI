@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 /**
@@ -21,9 +22,11 @@ import java.util.concurrent.TimeUnit
  * [DEFAULT_TARGETS] until usage data exists), fetches ~10 South Indian-pack items per
  * emotion (A.2/A.4 relevance), downloads the bytes, and inserts them into [MemeCache].
  *
- * Resilience: a failed emotion (network hiccup, empty pool, bad download) is skipped,
- * not fatal — [Result.retry] is only returned when every single emotion failed, i.e.
- * a wholesale network failure.
+ * Resilience: zero results for an emotion (empty pool, nothing relevant after
+ * filtering, all downloads skipped) is a normal outcome, not a failure — it is
+ * reported as [Result.success]. Only a genuine transport error (network I/O failure
+ * or a non-2xx HTTP response, see [TransportError]) counts toward a retry, and only
+ * when *every* attempted emotion hit one.
  */
 class MemePrefetchWorker(
     appContext: Context,
@@ -35,6 +38,9 @@ class MemePrefetchWorker(
         .readTimeout(20, TimeUnit.SECONDS)
         .build()
 
+    /** Thrown only for genuine transport failures - network I/O errors or non-2xx HTTP. */
+    private class TransportError(message: String, cause: Throwable? = null) : Exception(message, cause)
+
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val prefs = Prefs(applicationContext)
         if (!prefs.prefetchEnabled) return@withContext Result.success()
@@ -44,17 +50,43 @@ class MemePrefetchWorker(
 
         var attempted = 0
         var succeeded = 0
+        var transportErrors = 0
+        var totalInserted = 0
+        val perEmotion = StringBuilder()
+
         for (emotion in targets) {
             attempted++
             try {
-                if (prefetchEmotion(emotion, prefs, cache) > 0) succeeded++
+                val inserted = prefetchEmotion(emotion, prefs, cache)
+                totalInserted += inserted
+                if (inserted > 0) succeeded++
+                perEmotion.append("${emotion.key}=$inserted ")
+            } catch (t: TransportError) {
+                transportErrors++
+                perEmotion.append("${emotion.key}=ERR ")
+                Log.w(TAG, "prefetch transport error for ${emotion.key}", t)
             } catch (t: Throwable) {
-                // A single emotion failing is not fatal - skip it and keep going.
+                // Non-transport failure (bad JSON, empty pool, etc.) - zero results
+                // for this emotion, not a network failure. Skip and keep going.
+                perEmotion.append("${emotion.key}=0 ")
                 Log.w(TAG, "prefetch skipped for ${emotion.key}", t)
             }
         }
 
-        if (attempted > 0 && succeeded == 0) Result.retry() else Result.success()
+        Log.i(
+            TAG,
+            "Prefetch summary: attempted=$attempted succeeded=$succeeded " +
+                "totalInserted=$totalInserted transportErrors=$transportErrors [${perEmotion.trim()}]"
+        )
+
+        // Only a wholesale network outage - every single emotion hit a transport
+        // error - should be retried. Zero *results* with successful requests is a
+        // legitimate empty outcome and must not be treated as failure.
+        return@withContext if (attempted > 0 && transportErrors == attempted) {
+            Result.retry()
+        } else {
+            Result.success()
+        }
     }
 
     /** SPEC_V3 B.1 - top 10 emotions by usage count, falling back to the default list. */
@@ -78,7 +110,7 @@ class MemePrefetchWorker(
 
         val candidates = when (prefs.provider.lowercase()) {
             "tenor" -> tenor(query, prefs)
-            else -> giphy(query, prefs)
+            else -> giphyMerged(query, prefs)
         }
         if (candidates.isEmpty()) return 0
 
@@ -100,8 +132,35 @@ class MemePrefetchWorker(
 
     private data class Candidate(val url: String, val text: String)
 
-    private fun giphy(query: String, prefs: Prefs): List<Candidate> {
-        val url = "https://api.giphy.com/v1/stickers/search".toHttpUrl().newBuilder()
+    /**
+     * The worker only ever prefetches [MemeCulture.SOUTH_INDIAN], so `/v1/gifs/search`
+     * (10-100x more South Indian hits, per live measurement) is primary; the
+     * transparent `/v1/stickers/search` endpoint tops up if the primary is thin.
+     * A transport failure on the primary is retried against the secondary before
+     * being surfaced - only if both endpoints fail does the [TransportError] propagate.
+     */
+    private fun giphyMerged(query: String, prefs: Prefs): List<Candidate> {
+        val primary = try {
+            giphy(query, prefs, GIPHY_GIFS_URL)
+        } catch (t: TransportError) {
+            return try {
+                giphy(query, prefs, GIPHY_STICKERS_URL)
+            } catch (t2: TransportError) {
+                throw t
+            }
+        }
+        if (primary.size >= QUERY_FETCH_LIMIT) return primary
+
+        val secondary = try {
+            giphy(query, prefs, GIPHY_STICKERS_URL)
+        } catch (t: Throwable) {
+            emptyList()
+        }
+        return primary + secondary
+    }
+
+    private fun giphy(query: String, prefs: Prefs, endpoint: String): List<Candidate> {
+        val url = endpoint.toHttpUrl().newBuilder()
             .addQueryParameter("api_key", prefs.stickerKey)
             .addQueryParameter("q", query)
             .addQueryParameter("limit", QUERY_FETCH_LIMIT.toString())
@@ -159,9 +218,16 @@ class MemePrefetchWorker(
 
     private fun get(url: String): String {
         val request = Request.Builder().url(url).get().build()
-        client.newCall(request).execute().use { resp ->
+        val response = try {
+            client.newCall(request).execute()
+        } catch (e: IOException) {
+            throw TransportError("Meme prefetch network error: ${e.message}", e)
+        }
+        response.use { resp ->
             val body = resp.body?.string().orEmpty()
-            if (!resp.isSuccessful) throw RuntimeException("Meme prefetch ${resp.code}: ${body.take(160)}")
+            if (!resp.isSuccessful) {
+                throw TransportError("Meme prefetch ${resp.code}: ${body.take(160)}")
+            }
             return body
         }
     }
@@ -178,6 +244,8 @@ class MemePrefetchWorker(
         private const val TAG = "MemePrefetchWorker"
         private const val ITEMS_PER_EMOTION = 10
         private const val QUERY_FETCH_LIMIT = 20 // over-fetch so relevance filtering has something to pick from
+        private const val GIPHY_GIFS_URL = "https://api.giphy.com/v1/gifs/search"
+        private const val GIPHY_STICKERS_URL = "https://api.giphy.com/v1/stickers/search"
 
         /** SPEC_V3 B.1 fallback list, used until real usage data exists. */
         val DEFAULT_TARGETS: List<Emotion> = listOf(

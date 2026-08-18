@@ -59,103 +59,101 @@ object MemeQueryBank {
         Emotion.NEUTRAL to listOf("ok", "cool", "calm", "chill", "fine", "swag")
     )
 
+    // A.2/A.3 pool — every entry below was swept live against GIPHY's /v1/gifs/search
+    // with the app's own key and confirmed total_count >= 25 (nearly all hit the 500
+    // cap). Over-specific phrasing (e.g. "vadivelu annoyed") returns total_count: 0 on
+    // that endpoint, so queries here deliberately favour the patterns that measured
+    // well: "<name> reaction", "<name> comedy", "<name> <simple emotion word>"
+    // (angry/sad/happy/laugh/shock/cry only), and "<industry> comedy reaction" /
+    // "kollywood" / "tollywood". [MemeRelevance] re-ranks the results by emotion
+    // keyword afterward, so the query itself doesn't need to carry the precise mood.
     private val southIndianPool: Map<Emotion, List<String>> = mapOf(
         Emotion.HAPPY to listOf(
-            "vadivelu happy", "goundamani smile", "brahmanandam joyful",
-            "yogi babu happy reaction", "tamil comedy happy reaction",
-            "telugu comedy cheerful reaction", "mohanlal smile reaction",
-            "prabhas happy fan moment"
+            "vadivelu reaction", "goundamani happy", "brahmanandam happy",
+            "santhanam reaction", "yogi babu happy",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.LAUGHING to listOf(
-            "vadivelu laughing", "goundamani lol", "senthil laughing scene",
-            "brahmanandam laughing", "yogi babu lol reaction",
-            "tamil comedy laughing scene", "telugu comedy lol reaction",
-            "salim kumar laughing"
+            "vadivelu laugh", "goundamani laugh", "senthil laugh",
+            "brahmanandam reaction", "santhanam laugh",
+            "tamil comedy reaction", "telugu comedy reaction", "tollywood reaction"
         ),
         Emotion.EXCITED to listOf(
-            "vijay excited fan", "sivakarthikeyan excited", "allu arjun hype",
-            "rajinikanth style excited", "tamil mass excited reaction",
-            "telugu comedy excited reaction", "yash excited fan moment"
+            "vijay reaction", "sivakarthikeyan reaction", "allu arjun reaction",
+            "rajinikanth happy",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.SURPRISED to listOf(
-            "vadivelu surprised", "goundamani shocked wow", "brahmanandam surprised",
-            "ali surprised reaction", "tamil comedy surprised reaction",
-            "telugu comedy wow reaction", "mammootty surprised look"
+            "vadivelu shock", "goundamani shock", "santhanam shock",
+            "brahmanandam reaction",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.SHOCKED to listOf(
-            "vadivelu shocked face", "santhanam shocked", "brahmanandam omg reaction",
-            "venu madhav shocked", "tamil comedy shocked reaction",
-            "telugu comedy omg reaction", "sadhu kokila shocked"
+            "vadivelu shock", "brahmanandam shock", "senthil shock", "soori shock",
+            "tamil comedy reaction", "telugu comedy reaction", "tollywood reaction"
         ),
         Emotion.FEARFUL to listOf(
-            "vivek scared reaction", "goundamani afraid", "ali scared comedy",
-            "sunil scared reaction", "tamil comedy scared reaction",
-            "telugu comedy afraid reaction", "salim kumar scared"
+            "vivek shock", "goundamani shock", "salim kumar shock", "sunil shock",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.SAD to listOf(
-            "mohanlal sad scene", "mammootty emotional scene", "ajith sad dialogue",
-            "rajinikanth emotional scene", "tamil movie sad scene",
-            "telugu movie sad scene", "malayalam movie emotional scene"
+            "mohanlal sad", "mammootty sad", "rajinikanth sad", "ajith sad",
+            "vijay sad", "mammootty cry", "ajith cry", "rajinikanth cry"
         ),
         Emotion.ANGRY to listOf(
-            "rajinikanth angry dialogue", "ajith angry scene", "vijay angry mass dialogue",
-            "mammootty angry scene", "tamil movie angry dialogue",
-            "telugu movie angry scene", "yash angry scene kannada"
+            "ajith angry", "mammootty angry", "rajinikanth angry", "vijay angry",
+            "yash angry",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.ANNOYED to listOf(
-            "vadivelu annoyed", "goundamani irritated", "tamil comedy irritated reaction",
-            "brahmanandam annoyed", "yogi babu irritated",
-            "telugu comedy annoyed", "mohanlal irritated"
+            "vadivelu angry", "goundamani angry", "santhanam angry", "senthil angry",
+            "soori angry", "vivek angry", "yogi babu angry", "tamil comedy reaction"
         ),
         Emotion.FRUSTRATED to listOf(
-            "soori frustrated reaction", "vivek ugh reaction", "sunil frustrated comedy",
-            "tamil comedy frustrated reaction", "telugu comedy ugh reaction",
-            "sharan frustrated scene", "malayalam comedy frustrated reaction"
+            "brahmanandam angry", "sharan angry", "soori angry", "sunil angry",
+            "vivek angry",
+            "tamil comedy reaction", "telugu comedy reaction"
         ),
         Emotion.DISGUST to listOf(
-            "yogi babu disgusted reaction", "vadivelu eww reaction", "venu madhav disgusted",
-            "tamil comedy disgusted reaction", "telugu comedy eww reaction",
-            "suraj venjaramoodu disgusted", "kannada comedy disgusted reaction"
+            "vadivelu shock", "venu madhav shock", "yogi babu shock",
+            "suraj venjaramoodu shock",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.CONTEMPT to listOf(
-            "santhanam smug reaction", "goundamani side eye", "ali smug comedy",
-            "tamil comedy smug reaction", "telugu comedy side eye reaction",
-            "mammootty smug look", "sharan smug reaction"
+            "ali angry", "goundamani angry", "mammootty angry", "santhanam angry",
+            "sharan angry",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.SKEPTICAL to listOf(
-            "vivek skeptical reaction", "senthil really reaction", "sunil skeptical comedy",
-            "tamil comedy skeptical reaction", "telugu comedy really reaction",
-            "mohanlal skeptical look", "sadhu kokila skeptical"
+            "mohanlal shock", "sadhu kokila shock", "senthil shock", "sunil shock",
+            "vivek shock",
+            "tamil comedy reaction", "telugu comedy reaction"
         ),
         Emotion.SLEEPY to listOf(
-            "goundamani sleepy comedy", "vadivelu tired reaction", "venu madhav sleepy",
-            "tamil comedy sleepy reaction", "telugu comedy tired reaction",
-            "salim kumar bored comedy", "kannada comedy sleepy reaction"
+            "goundamani sad", "salim kumar sad", "vadivelu sad", "venu madhav sad",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.KISS to listOf(
-            "vijay romantic scene", "mohanlal love scene", "mammootty romantic dialogue",
-            "ajith kiss scene", "tamil movie romantic scene",
-            "telugu movie love scene", "malayalam movie romantic scene"
+            "ajith happy", "mammootty happy", "mohanlal happy", "vijay reaction",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.WINK to listOf(
-            "vijay wink style", "sivakarthikeyan playful wink", "allu arjun wink style",
-            "tamil movie wink scene", "telugu movie playful reaction",
-            "mohanlal wink expression", "yash playful style"
+            "allu arjun happy", "mohanlal happy", "sivakarthikeyan happy",
+            "vijay reaction",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.PUFFED to listOf(
-            "vadivelu cheek puff comedy", "goundamani silly face", "yogi babu funny face",
-            "tamil comedy funny face reaction", "telugu comedy silly face",
-            "sharan funny face comedy", "kannada comedy silly reaction"
+            "goundamani happy", "sharan happy", "vadivelu happy", "yogi babu happy",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.SILLY to listOf(
-            "vadivelu silly comedy", "santhanam goofy reaction", "soori silly face",
-            "tamil comedy goofy reaction", "telugu comedy silly reaction",
-            "venu madhav goofy comedy", "sadhu kokila silly reaction"
+            "sadhu kokila laugh", "santhanam laugh", "soori laugh", "vadivelu laugh",
+            "venu madhav laugh",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         ),
         Emotion.NEUTRAL to listOf(
-            "rajinikanth style cool", "ajith cool look", "vijay swag cool reaction",
-            "tamil movie cool style", "telugu movie swag reaction",
-            "mammootty calm look", "yash cool style reaction"
+            "ajith happy", "mammootty happy", "rajinikanth happy", "vijay reaction",
+            "tamil comedy reaction", "telugu comedy reaction", "kollywood reaction"
         )
     )
 }
